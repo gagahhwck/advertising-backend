@@ -4,14 +4,14 @@ namespace App\Models;
 
 use App\Events\LoadDataEvent;
 use App\Models\SSO\User;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Support\Str;
 
-class BaseModel extends Model
+trait BaseModel
 {
   use LogsActivity;
 
@@ -50,10 +50,37 @@ class BaseModel extends Model
       ->logOnlyDirty();
   }
 
+  public function creator()
+  {
+    return $this->belongsTo(User::class, 'created_by', 'username');
+  }
+
+  public function updater()
+  {
+    return $this->belongsTo(User::class, 'updated_by', 'username');
+  }
+
+  public function deleter()
+  {
+    return $this->belongsTo(User::class, 'deleted_by', 'username');
+  }
+
   public function scopeInclude($query)
   {
     if (request()->has('include') && is_array(request('include')) && count(request('include')) > 0) {
-      return $query->with(request('include'));
+      $relationWithFields = $this->buildAllRelationsWithFieldSelection();
+
+      // Debug: Log untuk melihat relasi yang akan di-load
+      if (config('app.debug')) {
+        Log::info('Relations with field selection:', $relationWithFields);
+      }
+
+      if (!empty($relationWithFields)) {
+        return $query->with($relationWithFields);
+      } else {
+        // Fallback ke include normal jika tidak ada field selection
+        return $query->with(request('include'));
+      }
     }
   }
 
@@ -110,14 +137,14 @@ class BaseModel extends Model
     }
 
     $search = request('q');
-    $table = $this->connection ? $this->connection . '.dbo.' . $this->table : $this->table;
+    $table = $this->table;
 
     $query->where(function ($subQuery) use ($table, $search) {
       if (request()->has('fields') && is_array(request('fields')) && count(request('fields')) > 0) {
         foreach (request('fields') as $field) {
           if (str_contains($field, '.*')) {
             $field = str_replace('.*', '', $field);
-            $columns = DB::getSchemaBuilder()->getColumnListing($field);
+            $columns = DB::connection($this->getConnectionName())->getSchemaBuilder()->getColumnListing($field);
             foreach ($columns as $column) {
               $subQuery->orWhere("{$field}.{$column}", 'like', '%' . $search . '%');
             }
@@ -148,54 +175,46 @@ class BaseModel extends Model
     // Pisahkan antara path dan field
     $parts = explode(':', $relation);
     $path = $parts[0]; // e.g. "course.department.faculty"
-    $fields = isset($parts[1]) ? explode(',', $parts[1]) : [];
+    $fields = isset($parts[1]) ? array_filter(array_map('trim', explode(',', $parts[1]))) : [];
 
     $relations = explode('.', $path);
 
     $this->recursiveRelationSearch($query, $relations, $fields, $search);
   }
 
-  private function recursiveRelationSearch($query, $relations, $fields, $search)
+  public function recursiveRelationSearch($query, $relations, $fields, $search)
+  {
+    $this->recursiveRelationSearchOnModel($this, $query, $relations, $fields, $search, true);
+  }
+
+  private function recursiveRelationSearchOnModel($model, $query, $relations, $fields, $search, $useOr = false)
   {
     $relationName = array_shift($relations);
 
-    if (!method_exists($this, $relationName)) {
+    if (!$relationName || !method_exists($model, $relationName)) {
       return;
     }
 
-    $query->orWhereHas($relationName, function ($relQuery) use ($relations, $fields, $search, $relationName) {
-      $relatedModel = $this->$relationName()->getRelated();
+    $whereHasMethod = $useOr ? 'orWhereHas' : 'whereHas';
+
+    $query->$whereHasMethod($relationName, function ($relQuery) use ($model, $relations, $fields, $search, $relationName) {
+      $relatedModel = $model->$relationName()->getRelated();
       $table = $relatedModel->getTable();
-      $columns = [];
       try {
-        $columns = \Illuminate\Support\Facades\DB::getSchemaBuilder()->getColumnListing($table);
+        $schemaTable = $this->extractSchemaTableName($table);
+        $columns = DB::connection($relatedModel->getConnectionName())->getSchemaBuilder()->getColumnListing($schemaTable);
       } catch (\Exception $e) {
         // If unable to get columns, fallback to all fields
         $columns = [];
       }
 
+      $searchFields = $this->resolveRelationSearchFields($fields, $columns, $relatedModel->getKeyName());
+
       if (!empty($relations)) {
-        // Check if related model has recursiveRelationSearch
-        if (method_exists($relatedModel, 'recursiveRelationSearch')) {
-          $relatedModel->recursiveRelationSearch($relQuery, $relations, $fields, $search);
-        } else {
-          // Fallback: just search fields in this relation
-          $validFields = array_intersect($fields, $columns);
-          if (empty($validFields)) {
-            $validFields = [$relatedModel->getKeyName()];
-          }
-          foreach ($validFields as $i => $field) {
-            $method = $i === 0 ? 'where' : 'orWhere';
-            $relQuery->$method($field, 'like', '%' . $search . '%');
-          }
-        }
+        $this->recursiveRelationSearchOnModel($relatedModel, $relQuery, $relations, $fields, $search, false);
       } else {
         // Sudah mentok, apply field search
-        $validFields = array_intersect($fields, $columns);
-        if (empty($validFields)) {
-          $validFields = [$relatedModel->getKeyName()];
-        }
-        foreach ($validFields as $i => $field) {
+        foreach ($searchFields as $i => $field) {
           $method = $i === 0 ? 'where' : 'orWhere';
           $relQuery->$method($field, 'like', '%' . $search . '%');
         }
@@ -203,11 +222,71 @@ class BaseModel extends Model
     });
   }
 
+  private function extractSchemaTableName($table)
+  {
+    // Convert `database.schema.table` to `schema.table` for schema builder lookup.
+    $parts = explode('.', str_replace(['[', ']'], '', (string) $table));
+
+    if (count($parts) >= 2) {
+      return implode('.', array_slice($parts, -2));
+    }
+
+    return $table;
+  }
+
+  private function resolveRelationSearchFields($fields, $columns, $fallbackKey)
+  {
+    $normalizedFields = array_values(array_filter(array_map(function ($field) {
+      return $this->normalizeSearchField($field);
+    }, (array) $fields)));
+
+    if (!empty($normalizedFields)) {
+      if (empty($columns)) {
+        return array_values(array_unique($normalizedFields));
+      }
+
+      $validFields = array_values(array_intersect($normalizedFields, $columns));
+      return !empty($validFields) ? $validFields : array_values(array_unique($normalizedFields));
+    }
+
+    return [$fallbackKey];
+  }
+
+  private function normalizeSearchField($field)
+  {
+    $field = trim((string) $field);
+    if ($field === '' || $field === '*') {
+      return null;
+    }
+
+    if (str_contains(strtolower($field), ' as ')) {
+      $field = preg_split('/\s+as\s+/i', $field)[0] ?? $field;
+    }
+
+    $field = str_replace(['[', ']'], '', $field);
+    if (str_contains($field, '.')) {
+      $parts = explode('.', $field);
+      $field = end($parts);
+    }
+
+    return trim($field) ?: null;
+  }
+
   private function applyColumnFilters($query)
   {
     $filters = request()->all();
+    $filterLogic = strtolower((string) request('filter_logic', 'and'));
+    $useOrLogic = in_array($filterLogic, ['or', 'any', 'one'], true);
 
-    $query->where(function ($subQuery) use ($filters) {
+    // Parse or_filters parameter: "lecturer_members->lecturer_id,reviews->reviewer_id"
+    $orFiltersParam = request('or_filters', '');
+    $orFiltersList = !empty($orFiltersParam) ? array_map('trim', explode(',', $orFiltersParam)) : [];
+
+    $query->where(function ($subQuery) use ($filters, $useOrLogic, $orFiltersList) {
+      $andFilters = [];
+      $orGroupFilters = [];
+
+      // Pisahkan filter ke AND dan OR group
       foreach ($filters as $column => $value) {
         // Skip parameter non-filter
         if (in_array($column, [
@@ -221,10 +300,29 @@ class BaseModel extends Model
           'sort_type',
           'per_page',
           'page',
-        ]) || str_starts_with($column, '_')) {
+          'filter_logic',
+          'or_filters',
+        ])) {
           continue;
         }
 
+        $originalColumn = $column;
+        if (str_contains($column, ':')) {
+          $parts = explode(':', $column);
+          $originalColumn = $parts[0];
+        }
+
+        // Cek apakah column ini ada di or_filters list
+        if (in_array($originalColumn, $orFiltersList)) {
+          $orGroupFilters[$column] = $value;
+        } else {
+          $andFilters[$column] = $value;
+        }
+      }
+
+      // Apply AND filters terlebih dahulu
+      $filterIndex = 0;
+      foreach ($andFilters as $column => $value) {
         $operator = '=';
         if (str_contains($column, ':')) {
           $parts = explode(':', $column);
@@ -232,20 +330,46 @@ class BaseModel extends Model
           $column = $parts[0];
         }
 
-        // Jika mengandung relasi (misal "profile-address-city")
-        if (str_contains($column, '->')) {
-          $parts = explode('->', $column);
-          $relation = implode('->', array_slice($parts, 0, -1)); // "profile-address"
-          $column = end($parts); // "city"
+        $this->applyColumnFilter($subQuery, $column, $operator, $value, 'and');
+        $filterIndex++;
+      }
 
-          $subQuery->whereHas(str_replace('->', '.', $relation), function ($relQuery) use ($column, $operator, $value) {
-            $this->wheres($relQuery, $column, $operator, $value);
-          });
-        } else {
-          $this->wheres($subQuery, $column, $operator, $value);
-        }
+      // Apply OR group filters - wrap dalam where() agar menjadi (A OR B)
+      if (!empty($orGroupFilters)) {
+        $subQuery->where(function ($orGroup) use ($orGroupFilters) {
+          $orIndex = 0;
+          foreach ($orGroupFilters as $column => $value) {
+            $operator = '=';
+            if (str_contains($column, ':')) {
+              $parts = explode(':', $column);
+              $operator = end($parts);
+              $column = $parts[0];
+            }
+
+            $boolean = $orIndex === 0 ? 'and' : 'or';
+            $this->applyColumnFilter($orGroup, $column, $operator, $value, $boolean);
+            $orIndex++;
+          }
+        });
       }
     });
+  }
+
+  private function applyColumnFilter($subQuery, $column, $operator, $value, $boolean = 'and')
+  {
+    // Jika mengandung relasi (misal "profile-address-city")
+    if (str_contains($column, '->')) {
+      $parts = explode('->', $column);
+      $relation = implode('->', array_slice($parts, 0, -1)); // "profile-address"
+      $column = end($parts); // "city"
+
+      $relationMethod = $boolean === 'or' ? 'orWhereHas' : 'whereHas';
+      $subQuery->$relationMethod(str_replace('->', '.', $relation), function ($relQuery) use ($column, $operator, $value) {
+        $this->wheres($relQuery, $column, $operator, $value, 'and');
+      });
+    } else {
+      $this->wheres($subQuery, $column, $operator, $value, $boolean);
+    }
   }
 
   private function applyWheres($query)
@@ -263,48 +387,113 @@ class BaseModel extends Model
     });
   }
 
-  private function wheres($q, $column, $operator, $value)
+  private function wheres($q, $column, $operator, $value, $boolean = 'and')
   {
     if ($column && $value !== null) {
       switch ($operator) {
         case 'in':
-          $q->whereIn($column, explode('|', $value));
+          if ($boolean === 'or') {
+            $q->orWhereIn($column, explode('|', $value));
+          } else {
+            $q->whereIn($column, explode('|', $value));
+          }
           break;
-
-        case 'not in':
-          $q->whereNotIn($column, explode('|', $value));
+        case 'not_in':
+          if ($boolean === 'or') {
+            $q->orWhereNotIn($column, explode('|', $value));
+          } else {
+            $q->whereNotIn($column, explode('|', $value));
+          }
           break;
 
         case 'null':
-          $q->whereNull($column);
+          if ($boolean === 'or') {
+            $q->orWhereNull($column);
+          } else {
+            $q->whereNull($column);
+          }
+          break;
+        case 'not_null':
+          if ($boolean === 'or') {
+            $q->orWhereNotNull($column);
+          } else {
+            $q->whereNotNull($column);
+          }
           break;
 
-        case 'not null':
-          $q->whereNotNull($column);
+        case 'not_like':
+          if ($boolean === 'or') {
+            $q->orWhere($column, 'not like', $value);
+          } else {
+            $q->where($column, 'not like', $value);
+          }
           break;
 
         case 'like':
-          $q->where($column, 'like', $value);
-          break;
-
         case '!=':
         case '<>':
-          $q->where($column, '!=', $value);
+        case '>':
+        case '>=':
+        case '<':
+        case '<=':
+          if ($boolean === 'or') {
+            $q->orWhere($column, $operator, $value);
+          } else {
+            $q->where($column, $operator, $value);
+          }
           break;
 
         case 'between':
+          if ($boolean === 'or') {
+            $q->orWhereBetween($column, explode('|', $value));
+          } else {
+            $q->whereBetween($column, explode('|', $value));
+          }
           if ($value && str_contains($value, '|')) {
               [$start, $end] = explode('|', $value);
-              $q->whereBetween($column, [$start, $end]);
+              if ($boolean === 'or') {
+                $q->orWhereBetween($column, [$start, $end]);
+              } else {
+                $q->whereBetween($column, [$start, $end]);
+              }
           }
           break;
 
         case 'year':
-          $q->whereYear($column, $value);
+          if ($boolean === 'or') {
+            $q->orWhereYear($column, $value);
+          } else {
+            $q->whereYear($column, $value);
+          }
+          break;
+        case 'month':
+          if ($boolean === 'or') {
+            $q->orWhereMonth($column, $value);
+          } else {
+            $q->whereMonth($column, $value);
+          }
+          break;
+        case 'day':
+          if ($boolean === 'or') {
+            $q->orWhereDay($column, $value);
+          } else {
+            $q->whereDay($column, $value);
+          }
+          break;
+        case 'date':
+          if ($boolean === 'or') {
+            $q->orWhereDate($column, $value);
+          } else {
+            $q->whereDate($column, $value);
+          }
           break;
 
         default:
-          $q->where($column, $value);
+          if ($boolean === 'or') {
+            $q->orWhere($column, $value);
+          } else {
+            $q->where($column, $value);
+          }
           break;
       }
     }
@@ -327,39 +516,212 @@ class BaseModel extends Model
 
     // cek apakah sort_by mengandung relasi
     if (str_contains($sortBy, '->')) {
-      // $sortBy = "course->department->fakultas->nama_fakultas"
-      $parts = explode('->', $sortBy); // ['course', 'department', 'fakultas', 'nama_fakultas']
-      $column = array_pop($parts);    // 'nama_fakultas'
-      $relationPath = implode('.', $parts); // 'course.department.fakultas'
-      $alias = str_replace('->', '_', $sortBy); // 'course_department_fakultas_nama_fakultas'
+      // $sortBy = "education_history->study_program->nama_english"
+      $parts = explode('->', $sortBy);
+      $column = array_pop($parts);
+      $relationPath = implode('.', $parts);
+      $alias = str_replace('->', '_', $sortBy);
 
-      $query->withAggregate($relationPath, $column);
-      $query->orderBy($alias, $sortType);
+      // Gunakan approach yang lebih robust untuk nested relations
+      try {
+        // Coba withAggregate untuk relasi sederhana
+        if (count($parts) === 1) {
+          $query->withAggregate($relationPath, $column);
+          $query->orderBy($alias, $sortType);
+        } else {
+          // Untuk nested relations yang lebih dalam, gunakan subquery
+          $this->applySortByNestedRelation($query, $parts, $column, $sortType, $alias);
+        }
+      } catch (\Exception $e) {
+        // Fallback ke sorting biasa jika ada error
+        $query->orderBy('created_at', $sortType);
+      }
     } else {
       // default orderBy field di tabel utama
       $query->orderBy($sortBy, $sortType);
     }
 
-    return $query->paginate(
+    Log::info('Final SQL Query for List:', ['sql' => $query->toSql(), 'bindings' => $query->getBindings()]);
+
+    $paginated = $query->paginate(
       request('per_page', $options['per_page']),
       ['*'],
       'page',
       request('page', $options['page'])
     );
+
+    $response = $paginated->toArray();
+    $response['success'] = true;
+    return $response;
   }
 
-  public function creator()
+  private function applySortByNestedRelation($query, $relations, $column, $sortType, $alias)
   {
-    return $this->belongsTo(User::class, 'created_by', 'username');
+    // Untuk nested relations yang dalam, gunakan approach berbeda
+    // Karena withAggregate tidak support nested relations dengan baik
+
+    try {
+      // Untuk sorting yang actual, kita perlu join manual (hanya untuk sorting)
+      $this->applyNestedJoinForSorting($query, $relations, $column, $sortType);
+
+    } catch (\Exception $e) {
+      // Jika gagal, fallback ke created_at
+      $query->orderBy('created_at', $sortType);
+    }
   }
 
-  public function updater()
+  private function buildAllRelationsWithFieldSelection()
   {
-    return $this->belongsTo(User::class, 'updated_by', 'username');
+    $relationWithFields = [];
+    $includeFields = $this->parseIncludeFieldSelection();
+
+    foreach ($includeFields as $relationPath => $fields) {
+      if ($fields === ['*']) {
+        // Jika tidak ada field specification, gunakan default include
+        $relationWithFields[$relationPath] = function($query) {};
+      } else {
+        $relationWithFields[$relationPath] = function($query) use ($fields) {
+          // Hanya select field yang dispesifikasi + primary key
+          $model = $query->getModel();
+          $finalFields = $fields;
+
+          $primaryKey = $model->getKeyName();
+          if (!in_array($primaryKey, $finalFields)) {
+            $finalFields[] = $primaryKey;
+          }
+
+          $query->select($finalFields);
+        };
+      }
+    }
+
+    return $relationWithFields;
   }
 
-  public function deleter()
+  private function addRequiredKeysForRelation($fields, $relationPath)
   {
-    return $this->belongsTo(User::class, 'deleted_by', 'username');
+    $finalFields = array_merge([], $fields); // Copy array
+
+    // Parse relation path untuk mendapatkan model dan relation details
+    $relations = explode('.', $relationPath);
+    $currentModel = $this;
+
+    // Untuk final relation di path ini
+    foreach ($relations as $relationName) {
+      if (method_exists($currentModel, $relationName)) {
+        $relationInstance = $currentModel->$relationName();
+        $relatedModel = $relationInstance->getRelated();
+
+        // Tambahkan primary key jika belum ada
+        $primaryKey = $relatedModel->getKeyName();
+        if (!in_array($primaryKey, $finalFields)) {
+          $finalFields[] = $primaryKey;
+        }
+
+        // Tambahkan foreign key untuk relationship ini jika belum ada
+        if ($relationInstance instanceof \Illuminate\Database\Eloquent\Relations\BelongsTo) {
+          $foreignKey = $relationInstance->getOwnerKeyName();
+          if (!in_array($foreignKey, $finalFields)) {
+            $finalFields[] = $foreignKey;
+          }
+        } else {
+          // HasMany, HasOne, dll
+          $foreignKey = $relationInstance->getForeignKeyName();
+          if (!in_array($foreignKey, $finalFields)) {
+            $finalFields[] = $foreignKey;
+          }
+        }
+
+        $currentModel = $relatedModel;
+      }
+    }
+
+    return array_unique($finalFields);
+  }
+
+  private function applyNestedJoinForSorting($query, $relations, $column, $sortType)
+  {
+    $currentModel = $this;
+    $finalTable = null;
+    $previousTableAlias = null;
+
+    // Build chain of joins - hanya untuk sorting, tidak perlu field selection
+    foreach ($relations as $index => $relationName) {
+      if (method_exists($currentModel, $relationName)) {
+        $relationInstance = $currentModel->$relationName();
+        $relatedModel = $relationInstance->getRelated();
+
+        $currentTable = $currentModel->getTable();
+        $relatedTable = $relatedModel->getTable();
+
+        // Buat alias untuk table supaya tidak conflict
+        $tableAlias = $relatedTable . '_sort_' . $index;
+
+        if ($relationInstance instanceof \Illuminate\Database\Eloquent\Relations\BelongsTo) {
+          $localKey = $relationInstance->getForeignKeyName();
+          $foreignKey = $relationInstance->getOwnerKeyName();
+        } else {
+          $localKey = $relationInstance->getLocalKeyName();
+          $foreignKey = $relationInstance->getForeignKeyName();
+        }
+
+        // Tentukan table alias sebelumnya
+        $fromTable = $index === 0 ? $currentTable : $previousTableAlias;
+
+        $query->leftJoin(
+          "{$relatedTable} as {$tableAlias}",
+          "{$fromTable}.{$localKey}",
+          '=',
+          "{$tableAlias}.{$foreignKey}"
+        );
+
+        $finalTable = $tableAlias;
+        $previousTableAlias = $tableAlias; // Simpan alias saat ini untuk iterasi berikutnya
+        $currentModel = $relatedModel;
+      }
+    }
+
+    // Apply sorting menggunakan final table
+    if ($finalTable) {
+      $query->orderBy("{$finalTable}.{$column}", $sortType);
+    }
+  }
+
+  private function parseIncludeFieldSelection()
+  {
+    $includes = [];
+    if (request()->has('include') && is_array(request('include'))) {
+      foreach (request('include') as $include) {
+        if (str_contains($include, ':')) {
+          [$path, $fields] = explode(':', $include, 2);
+          $fieldArray = array_map('trim', explode(',', $fields));
+          $includes[$path] = $fieldArray;
+        } else {
+          $includes[$include] = ['*']; // Select semua jika tidak ada field specification
+        }
+      }
+    }
+    return $includes;
+  }
+
+  private function getFieldsForRelation($includeFields, $relationPath)
+  {
+    // Cari field selection untuk relasi path ini
+    if (isset($includeFields[$relationPath])) {
+      return $includeFields[$relationPath];
+    }
+
+    // Cari parent path yang paling mendekati
+    $pathParts = explode('.', $relationPath);
+    while (count($pathParts) > 1) {
+      array_pop($pathParts);
+      $parentPath = implode('.', $pathParts);
+      if (isset($includeFields[$parentPath])) {
+        return $includeFields[$parentPath];
+      }
+    }
+
+    // Default fallback - minimal fields
+    return ['id'];
   }
 }

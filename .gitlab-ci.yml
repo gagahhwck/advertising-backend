@@ -1,15 +1,15 @@
-stages:
-  - deploy
+# stages:
+#   - deploy
 
-deploy-job:
-  stage: deploy
-  script:
-    - cd /home/gagah/public_html/ticketing-be
-    - git stash
-    - git pull
-    - docker compose up -d
-    - docker exec ticketing bash -c 'composer update'
-    - docker exec ticketing bash -c 'php artisan migrate'
-    - docker compose restart
-  tags:
-    - runner-api-dev
+# deploy-job:
+#   stage: deploy
+#   script:
+#     - cd /home/gagah/public_html/ticketing-be
+#     - git stash
+#     - git pull
+#     - docker compose up -d
+#     - docker exec ticketing bash -c 'composer update'
+#     - docker exec ticketing bash -c 'php artisan migrate'
+#     - docker compose restart
+#   tags:
+#     - runner-api-dev

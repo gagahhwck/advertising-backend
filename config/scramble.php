@@ -29,9 +29,9 @@ $data = [
         /*
          * Description rendered on the home page of the API documentation (`/docs/api`).
          */
-        'description' => '<h1> Ticketing API Documentation!</h1>
+        'description' => '<h1> Advertising API Documentation!</h1>
           <h3>ERD</h3>
-          <p>Below is the Entity Relationship Diagram (ERD) for the Ticketing API, illustrating the relationships between different entities within the ticketing system.</p>
+          <p>Below is the Entity Relationship Diagram (ERD) for the Advertising API, illustrating the relationships between different entities within the ticketing system.</p>
           <img src="'. env('AWS_ENDPOINT') . '/oss-dev/Ticketing/erd/v1.png" alt="Ticketing ERD" style="max-width: 100%; height: auto;">
           <h3>Authentication</h3>
           <p>This API uses API Key authentication. You need to include your API key in the request headers as follows:</p>
@@ -50,7 +50,7 @@ $data = [
         /*
          * Define the title of the documentation's website. App name is used when this config is `null`.
          */
-        'title' => 'ticketing API',
+        'title' => 'Advertising API',
 
         /*
          * Define the theme of the documentation. Available options are `light`, `dark`, and `system`.
