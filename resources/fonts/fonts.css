@@ -1,0 +1,36 @@
+@font-face {
+  font-family: "Halyard-Regular";
+  src: url("./HalyardText-Reg 2.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Halyard-Italic";
+  src: url("./HalyardText-It 2.otf") format("opentype");
+  font-weight: normal;
+  font-style: italic, oblique;
+}
+@font-face {
+  font-family: "Halyard-Bold-Italic";
+  src: url("./HalyardTextBd-It 2.otf") format("opentype");
+  font-weight: bold;
+  font-style: italic, oblique;
+}
+@font-face {
+  font-family: "Halyard-Bold";
+  src: url("./HalyardText-Bd 2.otf") format("opentype");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Halyard-SemiBold";
+  src: url("./HalyardTextSemBd 2.otf") format("opentype");
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Halyard-SemiBold-Italic";
+  src: url("./HalyardTextSemBd-It 2.otf") format("opentype");
+  font-weight: 600;
+  font-style: italic, oblique;
+}

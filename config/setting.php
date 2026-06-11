@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'api_url'               => env('API_URL', 'http://192.168.74.57/api'),
+    'api_url_js'            => env('API_URL_JS', 'https://itdev.uiii.ac.id/api'),
+    'api_key'               => env('API_KEY', 'eiWee8ep9due4deeshoa8Peichai8Eih'),
+    'api_token'             => env('API_TOKEN', 'eyJhbGciOiJIUzUxMiIsImlhdCI6MTY3MDA1Mjk3NSwiZXhwIjoxODI1NTcyOTc1fQ.eyJ1c2VybmFtZSI6InN1c2FuIn0.PzkictZ3b7nthXuXthRijRVsz9j58aL-2aRNSUpmKZzFWxXNL8ae0eU7craWOFZzpq5LlBBovjwMHu0QZUTl4w'),
+    'api_uiii'              => env('API_UIII', 'http://192.168.74.20/api'),
+    'id_perguruan_tinggi'   => env('ID_PERGURUAN_TINGGI','aa74ed69-b204-4c51-a340-23426832ca51'),
+    'bsre_url'              => env('BSRE_URL'),
+    'bsre_nik'              => env('BSRE_NIK'),
+    'bsre_username'         => env('BSRE_USERNAME'),
+    'bsre_password'         => env('BSRE_PASSWORD'),
+    'bsre_email'            => env('BSRE_EMAIL'),
+    'whatsapp_key'          => env('WHATSAPP_KEY', 'mysupersecretkey_ui3'),
+    'whatsapp_device'       => env('WHATSAPP_DEVICE', 'service_desk'),
+    'whatsapp_notification' => env('WHATSAPP_NOTIFICATION', 'FALSE'),
+    'whatsapp_force_curl'   => env('WHATSAPP_FORCE_CURL', 'FALSE'),
+    'email_notification'    => env('EMAIL_NOTIFICATION', 'FALSE'),
+    'expo_notification'     => env('EXPO_NOTIFICATION', 'FALSE'),
+    'va_number'             => env('VA_NUMBER', '87090'),
+    'mail_webhook_username' => env('MAIL_WEBHOOK_USERNAME'),
+    'mail_webhook_password' => env('MAIL_WEBHOOK_PASSWORD'),
+    'mail_api_url'          => env('MAIL_API_URL'),
+    'wa_server'             => env('WA_SERVER', 'http://192.168.74.68:5001'),
+];

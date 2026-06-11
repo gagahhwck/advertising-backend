@@ -1,0 +1,14 @@
+[
+  {
+    "id_pembiayaan": "1",
+    "nama_pembiayaan": "Mandiri"
+  },
+  {
+    "id_pembiayaan": "2",
+    "nama_pembiayaan": "Beasiswa Tidak Penuh"
+  },
+  {
+    "id_pembiayaan": "3",
+    "nama_pembiayaan": "Beasiswa Penuh"
+  }
+]

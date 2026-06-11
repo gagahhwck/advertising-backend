@@ -1,0 +1,31 @@
+services:
+  app:
+    image: maulanakevinp/frankenphp82-sqlsrv:latest
+    container_name: "ticketing"
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: php artisan octane:start --server=frankenphp --host=0.0.0.0 --port=8000 --watch
+    ports:
+      - "${APP_PORT:-8101}:8000"
+    restart: always
+
+  queue:
+    image: maulanakevinp/frankenphp82-sqlsrv:latest
+    container_name: "ticketing-queue"
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: php artisan queue:work -vvv --tries=3 --timeout=120
+    restart: always
+
+  scheduler:
+    image: maulanakevinp/frankenphp82-sqlsrv:latest
+    container_name: "ticketing-scheduler"
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: sh -c "while [ true ]; do php artisan schedule:run --verbose; sleep 60; done"
+    restart: always
+
+name: "ticketing"

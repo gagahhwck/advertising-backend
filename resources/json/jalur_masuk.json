@@ -1,0 +1,34 @@
+[
+  {
+    "id_jalur_masuk": "15",
+    "nama_jalur_masuk": "Seleksi Nasional Berdasarkan Prestasi (SNBP)"
+  },
+  {
+    "id_jalur_masuk": "9",
+    "nama_jalur_masuk": "Program Internasional"
+  },
+  {
+    "id_jalur_masuk": "11",
+    "nama_jalur_masuk": "Program Kerjasama Perusahaan/Institusi/Pemerintah"
+  },
+  {
+    "id_jalur_masuk": "4",
+    "nama_jalur_masuk": "Prestasi"
+  },
+  {
+    "id_jalur_masuk": "3",
+    "nama_jalur_masuk": "Penelusuran Minat dan Kemampuan (PMDK)"
+  },
+  {
+    "id_jalur_masuk": "12",
+    "nama_jalur_masuk": "Seleksi Mandiri"
+  },
+  {
+    "id_jalur_masuk": "13",
+    "nama_jalur_masuk": "Ujian Masuk Bersama Lainnya"
+  },
+  {
+    "id_jalur_masuk": "14",
+    "nama_jalur_masuk": "Seleksi Nasional Berdasarkan Tes (SNBT)"
+  }
+]
