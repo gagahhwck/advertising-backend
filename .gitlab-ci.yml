@@ -8,8 +8,8 @@ deploy-job:
     - git stash
     - git pull
     - docker compose up -d
-    - docker exec advertising bash -c 'composer update'
-    - docker exec advertising bash -c 'php artisan migrate'
+    - docker compose exec app bash -c 'composer update'
+    - docker compose exec app bash -c 'php artisan migrate'
     - docker compose restart
   tags:
     - runner-api-dev
