@@ -4,12 +4,12 @@
 # deploy-job:
 #   stage: deploy
 #   script:
-#     - cd /home/gagah/public_html/ticketing-be
+#     - cd /home/gagah/public_html/advertising-be
 #     - git stash
 #     - git pull
 #     - docker compose up -d
-#     - docker exec ticketing bash -c 'composer update'
-#     - docker exec ticketing bash -c 'php artisan migrate'
+#     - docker exec advertising bash -c 'composer update'
+#     - docker exec advertising bash -c 'php artisan migrate'
 #     - docker compose restart
 #   tags:
 #     - runner-api-dev

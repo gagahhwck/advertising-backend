@@ -9,10 +9,10 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 /**
- * Schedule a daily command to update ticketing status to published.
+ * Schedule a daily command to update advertising status to published.
  * 
- * This scheduled task runs the 'ticketing:update-status-publish' artisan command
- * every day at midnight (00:00) to automatically update ticketing statuses
+ * This scheduled task runs the 'advertising:update-status-publish' artisan command
+ * every day at midnight (00:00) to automatically update advertising statuses
  * that meet the criteria for being published.
  */
-Schedule::command('ticketing:update-status-publish')->daily();
+Schedule::command('advertising:update-status-publish')->daily();

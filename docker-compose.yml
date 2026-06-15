@@ -1,7 +1,7 @@
 services:
   app:
     image: maulanakevinp/frankenphp82-sqlsrv:latest
-    container_name: "ticketing"
+    container_name: "advertising"
     working_dir: /app
     volumes:
       - ./:/app
@@ -12,7 +12,7 @@ services:
 
   queue:
     image: maulanakevinp/frankenphp82-sqlsrv:latest
-    container_name: "ticketing-queue"
+    container_name: "advertising-queue"
     working_dir: /app
     volumes:
       - ./:/app
@@ -21,11 +21,11 @@ services:
 
   scheduler:
     image: maulanakevinp/frankenphp82-sqlsrv:latest
-    container_name: "ticketing-scheduler"
+    container_name: "advertising-scheduler"
     working_dir: /app
     volumes:
       - ./:/app
     command: sh -c "while [ true ]; do php artisan schedule:run --verbose; sleep 60; done"
     restart: always
 
-name: "ticketing"
+name: "advertising"

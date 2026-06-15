@@ -23,10 +23,8 @@ class Content extends Model
         'updated_by',
         'title',
         'description',
-        'orientation',
         'display_duration',
         'priority',
-        'auto_resize',
         'is_active',
         'status',
     ];
@@ -61,37 +59,8 @@ class Content extends Model
         return $this->hasMany(ContentLocation::class, 'content_id');
     }
 
-    public function scopeInclude($query)
+    public function content_receipts()
     {
-        if (request()->has('include')) {
-            return $query->with(explode(',', request('include')));
-        }
-    }
-
-    public function scopeFilter($query)
-    {
-        if (request()->has('q')) {
-            $query->where(function ($q) {
-            foreach ($this->fillable as $key => $column) {
-                if ($key == 0) {
-                $q->where($column, 'like', '%' . request('q') . '%');
-                } else {
-                $q->orWhere($column, 'like', '%' . request('q') . '%');
-                }
-            }
-            });
-        }
-
-        if (request()->has('filters') && is_array(request('filters'))) {
-            $query->where(function ($q) {
-            foreach (request('filters') as $column => $value) {
-                if (in_array($column, $this->fillable)) {
-                $q->where($column, $value);
-                }
-            }
-            });
-        }
-
-        return $query;
+        return $this->hasMany(ContentReceipt::class, 'content_id');
     }
 }

@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*', 'https://dev-ticketing.uiii.ac.id', 'https://ticketing.uiii.ac.id'],
+    'allowed_origins' => ['*', 'https://dev-advertising.uiii.ac.id', 'https://advertising.uiii.ac.id'],
 
     'allowed_origins_patterns' => [],
 

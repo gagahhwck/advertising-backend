@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('content_id')->references('id')->on('contents')->onDelete('cascade');
             $table->enum('media_type', ['image', 'video']);
-            $table->enum('orientation', ['portrait','landscape']);
+            $table->enum('orientation', ['portrait','landscape','both']);
+            $table->string('file_name');
             $table->string('file_path');
             $table->string('thumbnail')->nullable();
             $table->timestamps();

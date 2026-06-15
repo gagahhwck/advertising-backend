@@ -123,7 +123,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-    'frontend_url' => env('FRONTEND_URL', 'https://dev-ticketing.uii.ac.id/'),
+    'frontend_url' => env('FRONTEND_URL', 'https://dev-advertising.uii.ac.id/'),
     'app_testing' => env('APP_TESTING', false),
     'user_testing' => env('USER_TESTING', null),
 

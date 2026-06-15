@@ -37,39 +37,5 @@ class Event extends Model
         return $this->hasMany(Schedule::class, 'event_id');
     }
 
-    public function scopeInclude($query)
-    {
-        if (request()->has('include')) {
-            return $query->with(explode(',', request('include')));
-        }
-    }
-
-    public function scopeFilter($query)
-    {
-        if (request()->has('q')) {
-            $query->where(function ($q) {
-            foreach ($this->fillable as $key => $column) {
-                if ($key == 0) {
-                $q->where($column, 'like', '%' . request('q') . '%');
-                } else {
-                $q->orWhere($column, 'like', '%' . request('q') . '%');
-                }
-            }
-            });
-        }
-
-        if (request()->has('filters') && is_array(request('filters'))) {
-            $query->where(function ($q) {
-            foreach (request('filters') as $column => $value) {
-                if (in_array($column, $this->fillable)) {
-                $q->where($column, $value);
-                }
-            }
-            });
-        }
-
-        return $query;
-    }
-
 
 }

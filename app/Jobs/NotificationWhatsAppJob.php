@@ -129,7 +129,7 @@ class NotificationWhatsAppJob implements ShouldQueue
                     'key' => config('setting.whatsapp_key'),
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
-                    'User-Agent' => 'Laravel-ticketing/1.0'
+                    'User-Agent' => 'Laravel-advertising/1.0'
                 ])
                 ->post($requestUrl, [
                 'session'   => config('setting.whatsapp_device'),
@@ -273,7 +273,7 @@ class NotificationWhatsAppJob implements ShouldQueue
                 'key: ' . config('setting.whatsapp_key'),
                 'Content-Type: application/json',
                 'Accept: application/json',
-                'User-Agent: Laravel-ticketing-cURL/1.0'
+                'User-Agent: Laravel-advertising-cURL/1.0'
             ]
         ]);
 

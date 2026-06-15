@@ -2,8 +2,8 @@
 
 namespace App\Notifications;
 
+use App\Jobs\SendEmailMessageJob;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -11,12 +11,11 @@ class contentReceiptNotification extends Notification
 {
     use Queueable;
 
-    /**
-     * Create a new notification instance.
-     */
-    public function __construct()
+    protected array $payload;
+
+    public function __construct(array $payload)
     {
-        //
+        $this->payload = $payload;
     }
 
     /**
@@ -26,8 +25,23 @@ class contentReceiptNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        $data = ['database'];
+        if (config('setting.email_notification') == 'TRUE') {
+            $attachments = $this->payload['attachments'] ?? [];
+
+            SendEmailMessageJob::dispatch($notifiable->id, $this->payload['description'] ?? '',
+                '<h4 style="font-size: 16px; margin-top: 0;">'.($this->payload['title'] ?? '').'</h4>
+                <p>' . nl2br($this->payload['description'] ?? '') . '</p>
+                <p style="color: #cccccc; font-size: 12px;">Please do not reply to this automated message!</p>',
+                array_filter([
+                    'file' => !empty($attachments) ? $attachments : null,
+                ]));
+        }
+
+        return $data;
     }
+
+    // attachments are provided in the payload under 'attachments' key
 
     /**
      * Get the mail representation of the notification.
@@ -35,9 +49,10 @@ class contentReceiptNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+            ->subject('Event Content Notification')
+            ->line('You have a new content.')
+            ->line('Title: ' . ($this->payload['title'] ?? ''))
+            ->line('Description: ' . ($this->payload['description'] ?? ''));
     }
 
     /**
@@ -47,8 +62,6 @@ class contentReceiptNotification extends Notification
      */
     public function toArray(object $notifiable): array
     {
-        return [
-            //
-        ];
+        return $this->payload;
     }
 }

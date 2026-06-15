@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('content_id')->constrained('contents')->onDelete('cascade');
             $table->unsignedBigInteger('location_id')->constrained('location_assets')->onDelete('cascade');
-
+            $table->softDeletes();
             $table->timestamps();
         });
     }

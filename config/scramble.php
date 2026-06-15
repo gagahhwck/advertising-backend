@@ -31,15 +31,20 @@ $data = [
          */
         'description' => '<h1> Advertising API Documentation!</h1>
           <h3>ERD</h3>
-          <p>Below is the Entity Relationship Diagram (ERD) for the Advertising API, illustrating the relationships between different entities within the ticketing system.</p>
-          <img src="'. env('AWS_ENDPOINT') . '/oss-dev/Ticketing/erd/v1.png" alt="Ticketing ERD" style="max-width: 100%; height: auto;">
+          <p>Below is the Entity Relationship Diagram (ERD) for the Advertising API, illustrating the relationships between different entities within the advertising system.</p>
+          <img src="' . asset('images/erd/image.png') . '" alt="advertising ERD" style="max-width: 100%; height: auto;">
+          <h3>Use Case & Activity Diagram</h3>
+          <p>Below is the Diagrams for the Advertising API, illustrating how system work.</p>
+          <img src="' . asset('images/background/diagram.png') . '" alt="advertising Diagram System" style="max-width: 100%; height: auto;">
           <h3>Authentication</h3>
           <p>This API uses API Key authentication. You need to include your API key in the request headers as follows:</p>
           <pre><code>Authorization: Bearer YOUR_API_KEY</code></pre>
           <h3>Versioning</h3>
-          <p>The current version of the API is 2.0.0. Please refer to the versioning guidelines for any changes in future releases.</p>
+          <p>The current version of the API is 1.0.0. Please refer to the versioning guidelines for any changes in future releases.</p>
           <h3>Contact Information</h3>
           <p>If you have any questions or need support, please contact the API support team at <a href="mailto:ict@uiii.ac.id">ict@uiii.ac.id</a>.</p>
+          <h3>Development By</h3>
+          <p><a href="https://github.com/gagahhwck" target="_blank">gagahhwck (Nur Alief Gagah Wicaksono)</a></p>
         ',
     ],
 
@@ -102,8 +107,8 @@ $data = [
      */
     'servers' => [
         'Local'         => 'api',
-        'Development'   => 'https://api-dev.uiii.ac.id/ticketing',
-        'live'    => 'https://api.uiii.ac.id/ticketing',
+        'Development'   => 'https://api-dev.uiii.ac.id/advertising',
+        'live'    => 'https://api.uiii.ac.id/advertising',
     ],
 
     /**
@@ -130,11 +135,11 @@ if (env("APP_ENV") == 'local') {
 }
 
 if (env("APP_ENV") == 'development') {
-    $data['servers'] = ['Development' => 'https://api-dev.uiii.ac.id/ticketing'];
+    $data['servers'] = ['Development' => 'https://api-dev.uiii.ac.id/advertising'];
 }
 
 if (env("APP_ENV") == 'live') {
-    $data['servers'] = ['live' => 'https://api.uiii.ac.id/ticketing'];
+    $data['servers'] = ['live' => 'https://api.uiii.ac.id/advertising'];
 }
 
 return $data;

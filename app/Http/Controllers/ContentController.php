@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Advertising\Content;
-use App\Models\Assets\LocationAsset;
+use App\Models\Advertising\Event;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ContentController extends Controller
 {
@@ -14,13 +15,13 @@ class ContentController extends Controller
     * @response array{"current_page": int, "data": object[], "first_page_url": "string", "from": int, "last_page": int, "last_page_url": "string", "links": object[], "next_page_url": "string", "path": "string", "per_page": int, "prev_page_url": "string", "to": int, "total": int}
     */
     #[QueryParameter('q', type: 'string', format: 'text', description: 'Search query')]
-    #[QueryParameter('include', type: 'array<string>', format: 'csv', example: '["creator","template","schedules","media_files"]', description: '<p style="margin-bottom:0">Relationships to include:</p>
+    #[QueryParameter('include', type: 'array<string>', format: 'csv', example: '["creator","template","event","media_files"]', description: '<p style="margin-bottom:0">Relationships to include:</p>
         <ul style="margin-top:0px;">
         <li>creator</li>
         <li>updater</li>
         <li>deleter</li>
         <li>template</li>
-        <li>schedules</li>
+        <li>event</li>
         <li>media_files</li>
         <li>payments</li>
         <li>playback_logs</li>
@@ -59,32 +60,20 @@ class ContentController extends Controller
         $data = $request->validate([
             'template_id'           => ['nullable','integer', 'exists:templates,id'],
             'event_id'              => ['required','integer','exists:events,id'],
-            'title'                 => ['required', 'string', 'max:255'],
+            'title'                 => ['nullable', 'string', 'max:255'],
             'description'           => ['nullable', 'string'],
-            'orientation'           => ['required', 'in:portrait,landscape,both'],
             'display_duration'      => ['nullable', 'integer', 'min:10'],
             'priority'              => ['nullable', 'integer', 'min:1'],
-            'auto_resize'           => ['required', 'boolean'],
             'is_active'             => ['required', 'boolean'],
             'status'                => ['required', 'in:draft,pending,approved,rejected,scheduled,active,expired'],
-            'content_locations' => ['required', 'array'],
-            'content_locations.*' => ['required', 'integer', function ($attribute, $value, $fail) {
-                if (!LocationAsset::where('id', $value)->exists()) {
-                    $fail("The selected {$attribute} is invalid.");
-                }
-            }],
-            'content_receipts'      => ['nullable', 'array'],
-            'content_receipts.*.title' => ['nullable', 'string', 'max:255'],
-            'content_receipts.*.description' => ['nullable', 'string'],
-            'content_receipts.*.to' => ['nullable', 'string'],
-        ],[
-            'content_type.in' => 'The content_type must be one of the following: flower_board, advertisement, announcement.',
-            'orientation.in' => 'The orientation must be one of the following: portrait, landscape, both.',
-            'status.in' => 'The status must be one of the following: draft, pending, approved, rejected, scheduled, active, expired.',
-            'content_locations.required' => 'The content_locations field is required.',
-            'content_locations.array' => 'The content_locations field must be an array.',
-            'content_locations.*' => 'The Location must exist on Location Assets',
         ]);
+
+        // Event title for content title if empty
+        if (empty($data['title']) && !empty($data['event_id'])) {
+            $event = Event::findOrFail($data['event_id']);
+            $count = Content::where('event_id', $event->id)->count() + 1;
+            $data['title'] = $event->title.' #'.$count;
+        }        
 
         $data['display_duration'] = $data['display_duration'] ?? 10;
         $data['priority'] = $data['priority'] ?? 1;
@@ -92,30 +81,10 @@ class ContentController extends Controller
 
         $content = Content::create($data);
 
-        // Attach content locations with the provided location IDs
-        foreach ($data['content_locations'] as $locationId) {
-            $content->content_locations()->create([
-                'location_id' => $locationId,
-            ]);
-        }
-
-        // If content_receipts is provided, create content receipts for the content
-        if (isset($data['content_receipts'])) {
-            foreach ($data['content_receipts'] as $receipt) {
-                $content->content_receipts()->create([
-                    'content_id' => $content->id,
-                    'title' => $receipt['title'] ?? $content->title,
-                    'description' => $receipt['description'] ?? $content->description,
-                    'to' => $receipt['to'] ?? null,
-                    'from' => Auth::user()->username ?? 'system',
-                ]);
-            }
-        }
-
         return response()->json([
             'success' => true,
             'message' => 'Content Successfully saved',
-            'data'    => $content->load('')
+            'data'    => $content 
         ]);
         
     }
@@ -141,7 +110,31 @@ class ContentController extends Controller
      */
     public function update(Request $request, Content $content)
     {
-        //
+        $data = $request->validate([
+            'template_id'           => ['nullable','integer', 'exists:templates,id'],
+            'event_id'              => ['required','integer','exists:events,id'],
+            'title'                 => ['required', 'string', 'max:255'],
+            'description'           => ['nullable', 'string'],
+            'orientation'           => ['required', 'in:portrait,landscape,both'],
+            'display_duration'      => ['nullable', 'integer', 'min:10'],
+            'priority'              => ['nullable', 'integer', 'min:1'],
+            'auto_resize'           => ['required', 'boolean'],
+            'is_active'             => ['required', 'boolean'],
+            'status'                => ['required', 'in:draft,pending,approved,rejected,scheduled,active,expired'],
+        ]);
+
+        // preserve existing values if not provided
+        $data['display_duration'] = $data['display_duration'] ?? $content->display_duration ?? 10;
+        $data['priority'] = $data['priority'] ?? $content->priority ?? 1;
+        $data['updated_by'] = Auth::user()->username ?? 'system';
+
+        $content->update($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Content Successfully updated',
+            'data'    => $content
+        ]);
     }
 
     /**
@@ -149,6 +142,30 @@ class ContentController extends Controller
      */
     public function destroy(Content $content)
     {
-        //
+        // delete media files from storage (support either 'path' or 'file_path' column)
+        foreach ($content->media_files as $media) {
+            $filePath = $media->path ?? $media->file_path ?? null;
+            if ($filePath && Storage::disk('s3')->exists($filePath)) {
+                Storage::disk('s3')->delete($filePath);
+            }
+            // remove media record
+            $media->delete();
+        }
+
+        // remove related records
+        if ($content->content_locations()) {
+            $content->content_locations()->delete();
+        }
+        if ($content->content_receipts()) {
+            $content->content_receipts()->delete();
+        }
+
+        // delete the content itself
+        $content->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Content Successfully deleted'
+        ]);
     }
 }

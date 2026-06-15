@@ -19,10 +19,8 @@ return new class extends Migration
             $table->string('updated_by')->nullable();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->enum('orientation', ['portrait', 'landscape','both'])->default('both');
             $table->integer('display_duration')->default(10);
             $table->integer('priority')->default(1);
-            $table->boolean('auto_resize')->default(true);
             $table->boolean('is_active')->default(true);
             $table->enum('status', [
                 'draft',

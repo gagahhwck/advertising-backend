@@ -4,12 +4,13 @@ namespace App\Models\Advertising;
 
 use App\Models\Assets\LocationAsset;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class ContentLocation extends Model
 {
-    use LogsActivity;
+    use LogsActivity, SoftDeletes;
 
     protected $connection = 'advertising';
     protected $table = 'content_locations';

@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Advertising;
 
 use App\Models\Advertising\Content;
 use App\Models\SSO\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class ContentReceipt extends Model
 {
-    use LogsActivity;
+    use LogsActivity, SoftDeletes;
 
     protected $connection = 'advertising';
     protected $table = 'content_receipts';
@@ -39,12 +40,12 @@ class ContentReceipt extends Model
 
     public function to_user()
     {
-        return $this->belongsTo(User::class, 'to');
+        return $this->belongsTo(User::class, 'to', 'username');
     }
 
     public function from_user()
     {
-        return $this->belongsTo(User::class, 'from');
+        return $this->belongsTo(User::class, 'from', 'username');
     }
 
     public function scopeInclude($query)

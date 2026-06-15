@@ -17,6 +17,7 @@ class MediaFile extends Model
         'content_id',
         'media_type',
         'orientation',
+        'file_name',
         'file_path',
         'thumbnail',
     ];

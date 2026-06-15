@@ -25,10 +25,10 @@ class RestrictedDocsAccess
         return $next($request);
       } else {
         session()->forget('user');
-        return redirect('ticketing/docs/api/login');
+        return redirect('advertising/docs/api/login');
       }
     } else {
-      return redirect('ticketing/docs/api/login');
+      return redirect('advertising/docs/api/login');
     }
   }
 }

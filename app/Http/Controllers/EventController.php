@@ -83,7 +83,8 @@ class EventController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Event Successfully Created',
-            'data'      => $event
+            'eventid' => $event->id,  
+            'data'    => $event
         ]);
     }
 
@@ -153,7 +154,8 @@ class EventController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Event Successfully Updated',
-            'data'      => $event
+            'eventid' => $event->id,
+            'data'    => $event
         ]);
     }
 
