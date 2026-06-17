@@ -58,6 +58,113 @@ $data = [
                     <td style="border: 1px solid #000; padding: 8px;">83f10c128f808261dd577b2966bed732664dad4c</td>
                 </tr>
             </table>
+            <table style="border-collapse: collapse; width: 100%;">
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">Event</td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">Channels</td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">Listen</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">Content</td>
+                    <td style="border: 1px solid #000; padding: 8px;">contents</td>
+                    <td style="border: 1px solid #000; padding: 8px;">ContentCreated, ContentUpdated</td>
+                </tr>
+            </table>
+            <h3>Role on this Project</h3>
+            <table style="border-collapse: collapse; width: 100%;">
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px; text-align:center; width: 150px;">Role Name</td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">Permission</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">Ads Super Admin</td>
+                    <td style="border: 1px solid #000; padding: 8px;">
+                        <ul>
+                            <li>CRUD Event Category</li>
+                            <li>CRUD Event</li>
+                            <li>CRUD Template</li>
+                            <li>CRUD Content</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">Ads Admin</td>
+                    <td style="border: 1px solid #000; padding: 8px;">
+                        <ul>
+                            <li>CRUD Event</li>
+                            <li>CRUD Content</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">Ads Admin Media</td>
+                    <td style="border: 1px solid #000; padding: 8px;">
+                        <ul>
+                            <li>CRUD Template</li>
+                            <li>CRUD Event</li>
+                            <li>CRUD Content</li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+            <h3>Next.js / React.Js Integration (Frontend)</h3>
+            <p>If your frontend is built with <strong>Next.js</strong>, follow these steps to receive realtime updates from this API via WebSockets (Laravel broadcasting):</p>
+                <ol>
+                        <li><strong>Install client packages</strong> in your Next.js app:
+                                <pre><code>npm install laravel-echo pusher-js</code></pre>
+                        </li>
+                        <li>
+                            <strong>Client initialization (Next.js)</strong> — only run on the client (use):
+                            <code>useEffect
+                            </code>
+                        <pre>
+                            <code>
+                                import { useEffect } from "react";
+                                import Echo from "laravel-echo";
+                                import Pusher from "pusher-js";
+                                if (typeof window !== "undefined") window.Pusher = Pusher;
+                                export default function useContentsRealtime() {
+                                    useEffect(() =&gt; {
+                                        const echo = new Echo({
+                                            broadcaster: "pusher",
+                                            key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY,
+                                            cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER,
+                                            wsHost: process.env.NEXT_PUBLIC_PUSHER_HOST || window.location.hostname,
+                                            wsPort: process.env.NEXT_PUBLIC_PUSHER_PORT || 6001,
+                                            forceTLS: process.env.NEXT_PUBLIC_PUSHER_SCHEME === "https",
+                                            disableStats: true,
+                                            auth: {
+                                                headers: {
+                                                    Authorization: `Bearer ${localStorage.getItem("api_token")}`,
+                                                },
+                                            },
+                                        });
+
+                                        echo.channel("contents").listen("ContentCreated", (e) =&gt; {
+                                            console.log("content created", e);
+                                        });
+
+                                        or 
+
+                                        echo.channel("contents").listen("ContentUpdated", e => {
+                                        if (e.action === "deleted") {
+                                            // hapus dari list
+                                        } else if (e.action === "updated") {
+                                            // update item di list
+                                        }
+                                        });
+
+                                        return () =&gt; echo.disconnect();
+                                    }, []);
+                                }
+                            </code>
+                        </pre>
+                        <p>Adjust channel name (`contents`) and event class name to match the server broadcast. If you use namespaced events (Laravel default), listen for the short name or the full class name emitted by the server.</p>
+                    </li>
+                    <li><strong>SSR considerations</strong>: initialize Echo only on the client. Do not run Pusher/Echo on the server-side. Use hooks or lazy-loaded components that run after hydration.</li>
+                    <li><strong>Channel security</strong>: use <code>PrivateChannel</code> or <code>PresenceChannel</code> in Laravel and protect <code>/broadcasting/auth</code> to verify the logged-in user. For API token auth, configure Echo <code>auth.headers</code> to include the Authorization bearer token.</li>
+                    <li><strong>Event payloads</strong>: the backend already broadcasts events with <code>action</code> and <code>data</code> keys; client code should inspect <code>e.action</code> to determine created/updated/deleted flows.</li>
+                </ol>
         ',
     ],
 

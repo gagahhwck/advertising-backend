@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ContentCreated;
+use App\Events\ContentUpdated;
 use App\Models\Advertising\Content;
 use App\Models\Advertising\Event;
 use Dedoc\Scramble\Attributes\QueryParameter;
@@ -80,6 +82,7 @@ class ContentController extends Controller
         $data['created_by'] = Auth::user()->username ?? 'system';
 
         $content = Content::create($data);
+        event(new ContentCreated($content));
 
         return response()->json([
             'success' => true,
@@ -129,6 +132,7 @@ class ContentController extends Controller
         $data['updated_by'] = Auth::user()->username ?? 'system';
 
         $content->update($data);
+        event(new ContentUpdated($content));
 
         return response()->json([
             'success' => true,
@@ -161,6 +165,7 @@ class ContentController extends Controller
         }
 
         // delete the content itself
+        event(new ContentUpdated($content, 'deleted'));
         $content->delete();
 
         return response()->json([
