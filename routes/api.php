@@ -15,8 +15,9 @@ Route::middleware('api_key')->group(function () {
     Route::get('event_categories/{event_category}', [EventCategoryController::class, 'show'])->middleware('permission:ads.view-event-categories');
     Route::post('event_categories', [EventCategoryController::class, 'store'])->middleware('permission:ads.create-event-categories');
     Route::put('event_categories/{event_category}', [EventCategoryController::class, 'update'])->middleware('permission:ads.edit-event-categories');
-    // Event (Super Admin, Admin Only)
     Route::delete('event_categories/{event_category}', [EventCategoryController::class, 'destroy'])->middleware('permission:ads.delete-event-categories');
+    // Event (Super Admin, Admin Only)
+    Route::get('events', [EventController::class, 'index']);
     Route::post('events', [EventController::class, 'store'])->middleware('permission:ads.create-event');
     Route::put('events/{event}', [EventController::class, 'update'])->middleware('permission:ads.edit-event');
     Route::get('events/{event}', [EventController::class, 'show'])->middleware('permission:ads.view-event');
@@ -28,6 +29,7 @@ Route::middleware('api_key')->group(function () {
     Route::put('templates/{template}', [TemplateController::class, 'update'])->middleware('permission:ads.update-template');
     Route::delete('templates/{template}', [TemplateController::class, 'destroy'])->middleware('permission:ads.delete-template');
     // Content (Super Admin, Admin)
+    Route::get('contents', [ContentController::class, 'index']);
     Route::post('contents', [ContentController::class, 'store'])->middleware('permission:ads.create-content');
     Route::get('contents/{content}', [ContentController::class, 'show'])->middleware('permission:ads.view-content');
     Route::put('contents/{content}', [ContentController::class, 'update'])->middleware('permission:ads.update-content');
