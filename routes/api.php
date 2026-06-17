@@ -10,27 +10,35 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('api_key')->group(function () {
   Route::middleware('auth')->group(function () {
-    Route::apiResource('event_categories', EventCategoryController::class)
-      ->middleware('permission:ads.view-event-categories')->only(['index', 'show'])
-      ->middleware('permission:ads.create-event-categories')->only(['store'])
-      ->middleware('permission:ads.edit-event-categories')->only(['update'])
-      ->middleware('permission:ads.delete-event-categories')->only(['destroy']);
-    Route::apiResource('events', EventController::class)
-      ->middleware('permission:ads.create-event')->only(['store'])
-      ->middleware('permission:ads.edit-event')->only(['update'])
-      ->middleware('permission:ads.view-event')->only(['show'])
-      ->middleware('permission:ads.delete-event')->only(['destroy']);
-    Route::apiResource('templates', TemplateController::class)
-      ->middleware('permission:ads.view-template')->only(['index','show'])
-      ->middleware('permission:ads.create-template')->only(['store'])
-      ->middleware('permission:ads.update-template')->only(['update'])
-      ->middleware('permission:ads.delete-template')->only(['destroy']);
-    Route::apiResource('contents', ContentController::class)
-    ->middleware('permission:ads.create-content')->only(['create'])
-    ->middleware('permission:ads.view-content')->only(['show'])
-    ->middleware('permission:ads.update-content')->only(['update'])
-    ->middleware('permission:ads.delete-content')->only(['destroy']);
+    // Event Category (Super Admin Only)
+    Route::get('event_categories', [EventCategoryController::class, 'index'])->middleware('permission:ads.view-event-categories');
+    Route::get('event_categories/{event_category}', [EventCategoryController::class, 'show'])->middleware('permission:ads.view-event-categories');
+    Route::post('event_categories', [EventCategoryController::class, 'store'])->middleware('permission:ads.create-event-categories');
+    Route::put('event_categories/{event_category}', [EventCategoryController::class, 'update'])->middleware('permission:ads.edit-event-categories');
+    // Event (Super Admin, Admin Only)
+    Route::patch('event_categories/{event_category}', [EventCategoryController::class, 'update'])->middleware('permission:ads.edit-event-categories');
+    Route::delete('event_categories/{event_category}', [EventCategoryController::class, 'destroy'])->middleware('permission:ads.delete-event-categories');
+    Route::post('events', [EventController::class, 'store'])->middleware('permission:ads.create-event');
+    Route::put('events/{event}', [EventController::class, 'update'])->middleware('permission:ads.edit-event');
+    Route::patch('events/{event}', [EventController::class, 'update'])->middleware('permission:ads.edit-event');
+    Route::get('events/{event}', [EventController::class, 'show'])->middleware('permission:ads.view-event');
+    Route::delete('events/{event}', [EventController::class, 'destroy'])->middleware('permission:ads.delete-event');
+    // Template (Super Admin, Media)
+    Route::get('templates', [TemplateController::class, 'index'])->middleware('permission:ads.view-template');
+    Route::get('templates/{template}', [TemplateController::class, 'show'])->middleware('permission:ads.view-template');
+    Route::post('templates', [TemplateController::class, 'store'])->middleware('permission:ads.create-template');
+    Route::put('templates/{template}', [TemplateController::class, 'update'])->middleware('permission:ads.update-template');
+    Route::patch('templates/{template}', [TemplateController::class, 'update'])->middleware('permission:ads.update-template');
+    Route::delete('templates/{template}', [TemplateController::class, 'destroy'])->middleware('permission:ads.delete-template');
+    // Content (Super Admin, Admin)
+    Route::post('contents', [ContentController::class, 'store'])->middleware('permission:ads.create-content');
+    Route::get('contents/{content}', [ContentController::class, 'show'])->middleware('permission:ads.view-content');
+    Route::put('contents/{content}', [ContentController::class, 'update'])->middleware('permission:ads.update-content');
+    Route::patch('contents/{content}', [ContentController::class, 'update'])->middleware('permission:ads.update-content');
+    Route::delete('contents/{content}', [ContentController::class, 'destroy'])->middleware('permission:ads.delete-content');
+    // Content Media (Global)
     Route::apiResource('content_location',ContentLocationController::class)->except('index','show');
+    // Media File (Global)
     Route::apiResource('media_files', MediaFileController::class)->except('index','show');
     // Route::apiResource('content_receipts', ContentReceiptController::class)->except('index','show','update');
   });
