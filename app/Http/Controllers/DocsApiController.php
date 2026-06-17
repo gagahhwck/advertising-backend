@@ -22,7 +22,7 @@ class DocsApiController extends Controller
         $user = User::where($data_user)->first();
         if ($user) {
           session(['user' => $user]);
-          return redirect(config('app.env') == 'local' ? '/docs/api' : '/advertising/docs/api');
+          return redirect(config('app.env') == 'local' ? '/docs/api' : '/ads/docs/api');
         }
       }
     } catch (\Throwable $th) {
