@@ -48,9 +48,9 @@ $data = [
             <h3>This Project contain Websocket</h3>
             <table style="border-collapse: collapse; width: 100%;">
                 <tr>
-                    <td style="border: 1px solid #000; padding: 8px;">ID</td>
-                    <td style="border: 1px solid #000; padding: 8px;">KEY</td>
-                    <td style="border: 1px solid #000; padding: 8px;">Secret</td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">ID</td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">KEY</td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">Secret</td>
                 </tr>
                 <tr>
                     <td style="border: 1px solid #000; padding: 8px;">advertising-uiii-id</td>
