@@ -155,11 +155,7 @@ $data = [
                                 }
                             </code>
                         </pre>
-                        <p>Adjust channel name (`contents`) and event class name to match the server broadcast. If you use namespaced events (Laravel default), listen for the short name or the full class name emitted by the server.</p>
                     </li>
-                    <li><strong>SSR considerations</strong>: initialize Echo only on the client. Do not run Pusher/Echo on the server-side. Use hooks or lazy-loaded components that run after hydration.</li>
-                    <li><strong>Channel security</strong>: use <code>PrivateChannel</code> or <code>PresenceChannel</code> in Laravel and protect <code>/broadcasting/auth</code> to verify the logged-in user. For API token auth, configure Echo <code>auth.headers</code> to include the Authorization bearer token.</li>
-                    <li><strong>Event payloads</strong>: the backend already broadcasts events with <code>action</code> and <code>data</code> keys; client code should inspect <code>e.action</code> to determine created/updated/deleted flows.</li>
                 </ol>
         ',
     ],
