@@ -139,13 +139,10 @@ $data = [
                                                 },
                                             },
                                         });
-
                                         echo.channel("contents").listen("ContentCreated", (e) =&gt; {
-                                            console.log("content created", e);
+                                            // tambah
                                         });
-
-                                        or 
-
+                                        // atau
                                         echo.channel("contents").listen("ContentUpdated", e => {
                                         if (e.action === "deleted") {
                                             // hapus dari list
@@ -153,7 +150,6 @@ $data = [
                                             // update item di list
                                         }
                                         });
-
                                         return () =&gt; echo.disconnect();
                                     }, []);
                                 }
