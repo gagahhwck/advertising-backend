@@ -30,21 +30,34 @@ $data = [
          * Description rendered on the home page of the API documentation (`/docs/api`).
          */
         'description' => '<h1> Advertising API Documentation!</h1>
-          <h3>ERD</h3>
-          <p>Below is the Entity Relationship Diagram (ERD) for the Advertising API, illustrating the relationships between different entities within the advertising system.</p>
-          <img src="https://minio-console.uiii.ac.id/oss-dev/advertising/docAPI/ERD.png" alt="advertising ERD" style="max-width: 100%; height: auto;">
-          <h3>Use Case & Activity Diagram</h3>
-          <p>Below is the Diagrams for the Advertising API, illustrating how system work.</p>
-          <img src="https://minio-console.uiii.ac.id/oss-dev/advertising/docAPI/diagram.png" alt="advertising Diagram System" style="max-width: 100%; height: auto;">
-          <h3>Authentication</h3>
-          <p>This API uses API Key authentication. You need to include your API key in the request headers as follows:</p>
-          <pre><code>Authorization: Bearer YOUR_API_KEY</code></pre>
-          <h3>Versioning</h3>
-          <p>The current version of the API is 1.0.0. Please refer to the versioning guidelines for any changes in future releases.</p>
-          <h3>Contact Information</h3>
-          <p>If you have any questions or need support, please contact the API support team at <a href="mailto:ict@uiii.ac.id">ict@uiii.ac.id</a>.</p>
-          <h3>Development By</h3>
-          <p><a href="https://github.com/gagahhwck" target="_blank">gagahhwck (Nur Alief Gagah Wicaksono)</a></p>
+            <h3>ERD</h3>
+            <p>Below is the Entity Relationship Diagram (ERD) for the Advertising API, illustrating the relationships between different entities within the advertising system.</p>
+            <img src="https://minio-console.uiii.ac.id/oss-dev/advertising/docAPI/ERD.png" alt="advertising ERD" style="max-width: 100%; height: auto;">
+            <h3>Use Case & Activity Diagram</h3>
+            <p>Below is the Diagrams for the Advertising API, illustrating how system work.</p>
+            <img src="https://minio-console.uiii.ac.id/oss-dev/advertising/docAPI/diagram.png" alt="advertising Diagram System" style="max-width: 100%; height: auto;">
+            <h3>Authentication</h3>
+            <p>This API uses API Key authentication. You need to include your API key in the request headers as follows:</p>
+            <pre><code>Authorization: Bearer YOUR_API_KEY</code></pre>
+            <h3>Versioning</h3>
+            <p>The current version of the API is 1.0.0. Please refer to the versioning guidelines for any changes in future releases.</p>
+            <h3>Contact Information</h3>
+            <p>If you have any questions or need support, please contact the API support team at <a href="mailto:ict@uiii.ac.id">ict@uiii.ac.id</a>.</p>
+            <h3>Development By</h3>
+            <p><a href="https://github.com/gagahhwck" target="_blank">gagahhwck (Nur Alief Gagah Wicaksono)</a></p>
+            <h3>This Project contain Websocket</h3>
+            <table style="border-collapse: collapse; width: 100%;">
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">ID</td>
+                    <td style="border: 1px solid #000; padding: 8px;">KEY</td>
+                    <td style="border: 1px solid #000; padding: 8px;">Secret</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">advertising-uiii-id</td>
+                    <td style="border: 1px solid #000; padding: 8px;">3c9255027fe9394491b1219831aad636e65769d6</td>
+                    <td style="border: 1px solid #000; padding: 8px;">83f10c128f808261dd577b2966bed732664dad4c</td>
+                </tr>
+            </table>
         ',
     ],
 
