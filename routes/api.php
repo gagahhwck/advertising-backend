@@ -5,6 +5,7 @@ use App\Http\Controllers\ContentLocationController;
 use App\Http\Controllers\EventCategoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\MediaFileController;
+use App\Http\Controllers\RunningTextController;
 use App\Http\Controllers\TemplateController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,5 +40,12 @@ Route::middleware('api_key')->group(function () {
     // Media File (Global)
     Route::apiResource('media_files', MediaFileController::class)->except('index','show');
     // Route::apiResource('content_receipts', ContentReceiptController::class)->except('index','show','update');
+
+    // Running Text (Super Admin, Admin)
+    Route::get('active-running',[RunningTextController::class, 'running']);
+    Route::get('running-texts', [RunningTextController::class, 'index'])->middleware('permission:ads.view-running-text');
+    Route::post('running-texts', [RunningTextController::class, 'store'])->middleware('permission:ads.create-running-text');
+    Route::put('running-texts/{running_text}', [RunningTextController::class, 'show'])->middleware('permission:ads.view-running-text');
+    Route::delete('running-texts/{running_text}', [RunningTextController::class, 'destroy'])->middleware('permission:ads.delete-running-text');
   });
 });

@@ -38,7 +38,11 @@ class RoleSeeder extends Seeder
             'ads.view-content',
             'ads.create-content',
             'ads.update-content',
-            'ads.delete-content'
+            'ads.delete-content',
+            // running text
+            'ads.view-running-text',
+            'ads.create-running-text',
+            'ads.delete-running-text'
         ]);
 
         syncUserToNewRole('Super Admin', $role->id);
@@ -56,7 +60,11 @@ class RoleSeeder extends Seeder
             'ads.view-content',
             'ads.create-content',
             'ads.update-content',
-            'ads.delete-content'
+            'ads.delete-content',
+            // running text
+            'ads.view-running-text',
+            'ads.create-running-text',
+            'ads.delete-running-text'
         ]);
     }
 
