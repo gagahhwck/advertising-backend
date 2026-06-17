@@ -107,8 +107,8 @@ $data = [
      */
     'servers' => [
         'Local'         => 'api',
-        'Development'   => 'https://api-dev.uiii.ac.id/advertising',
-        'live'    => 'https://api.uiii.ac.id/advertising',
+        'Development'   => 'https://api-dev.uiii.ac.id/ads',
+        'live'    => 'https://api.uiii.ac.id/ads',
     ],
 
     /**
@@ -135,11 +135,11 @@ if (env("APP_ENV") == 'local') {
 }
 
 if (env("APP_ENV") == 'development') {
-    $data['servers'] = ['Development' => 'https://api-dev.uiii.ac.id/advertising'];
+    $data['servers'] = ['Development' => 'https://api-dev.uiii.ac.id/ads'];
 }
 
 if (env("APP_ENV") == 'live') {
-    $data['servers'] = ['live' => 'https://api.uiii.ac.id/advertising'];
+    $data['servers'] = ['live' => 'https://api.uiii.ac.id/ads'];
 }
 
 return $data;
