@@ -43,6 +43,36 @@ class EventCategorySeeder extends Seeder
                 'is_active'     => 1,
                 'created_at'    => now()
             ],
+            [
+                'name'          => 'Graduations',
+                'created_by'    => 'gagah.wicaksono',
+                'is_active'     => 1,
+                'created_at'    => now()
+            ],
+            [
+                'name'          => 'Condolences',
+                'created_by'    => 'gagah.wicaksono',
+                'is_active'     => 1,
+                'created_at'    => now()
+            ],
+            [
+                'name'          => 'Public Service',
+                'created_by'    => 'gagah.wicaksono',
+                'is_active'     => 1,
+                'created_at'    => now()
+            ],
+            [
+                'name'          => 'Career & Education',
+                'created_by'    => 'gagah.wicaksono',
+                'is_active'     => 1,
+                'created_at'    => now()
+            ],
+            [
+                'name'          => 'Student Activity',
+                'created_by'    => 'gagah.wicaksono',
+                'is_active'     => 1,
+                'created_at'    => now()
+            ],
         ]);
     }
 }
