@@ -5,6 +5,10 @@ use App\Http\Controllers\ContentLocationController;
 use App\Http\Controllers\EventCategoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\MediaFileController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaymentWebhookController;
+use App\Http\Controllers\PricingRuleController;
 use App\Http\Controllers\RunningTextController;
 use App\Http\Controllers\TemplateController;
 use Illuminate\Support\Facades\Route;
@@ -47,5 +51,17 @@ Route::middleware('api_key')->group(function () {
     Route::post('running-texts', [RunningTextController::class, 'store'])->middleware('permission:ads.create-running-text');
     Route::put('running-texts/{running_text}', [RunningTextController::class, 'show'])->middleware('permission:ads.view-running-text');
     Route::delete('running-texts/{running_text}', [RunningTextController::class, 'destroy'])->middleware('permission:ads.delete-running-text');
+
+    // Order Content
+    Route::post('orders/{content_id}', [OrderController::class, 'store']);
+
+    // Pricing Rule (Super Admin, Admin)
+    Route::get('/pricing-rules',[PricingRuleController::class,'index'])->middleware('permission:ads.view-pricing');
+    Route::post('pricing-rules',[PricingRuleController::class,'store'])->middleware('permission:ads.create-pricing');
+    Route::delete('pricing-rules',[PricingRuleController::class,'destroy'])->middleware('permission:ads.delete-pricing');
+
+    // payment
+    Route::post('/payments/{order}', [PaymentController::class, 'create']);
+    Route::post('/payments/webhook', [PaymentWebhookController::class, 'handle']);
   });
 });

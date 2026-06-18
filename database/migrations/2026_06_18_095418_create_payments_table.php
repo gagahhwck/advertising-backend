@@ -13,23 +13,14 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('content_id')->constrained('contents')->onDelete('cascade');
-            $table->string('invoice_number');
-            $table->bigInteger('amount');
-            $table->string('evidence')->nullable();
-            $table->enum('payment_method',[
-                'manual',
-                'va',
-                'qris',
-                'ewallet'
-            ]);
-            $table->enum('status',[
-                'pending',
-                'paid',
-                'failed',
-                'refund'
-            ]);
+            $table->foreignId('order_id')->references('id')->on('orders')->onDelete('no action');
+            $table->string('gateway')->default('midtrans');
+            $table->string('transaction_id')->nullable();
+            $table->string('payment_url')->nullable();
+            $table->string('status')->default('pending');
             $table->timestamp('paid_at')->nullable();
+            $table->json('raw_response')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

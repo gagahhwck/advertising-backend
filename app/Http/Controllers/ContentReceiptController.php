@@ -53,9 +53,9 @@ class ContentReceiptController extends Controller
                 'from'        => $from,
             ];
 
-            $contentReceipt = ContentReceipt::create($payload);
-            ReceiptNotificationJob::dispatch($contentReceipt);
-            $created[] = $contentReceipt;
+            // $contentReceipt = ContentReceipt::create($payload);
+            ReceiptNotificationJob::dispatch($payload);
+            $created[] = $payload;
         }
 
         return response()->json(['data' => $created], 201);

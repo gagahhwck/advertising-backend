@@ -4,7 +4,6 @@ namespace App\Models\Advertising;
 
 use App\Models\Advertising\ContentLocation;
 use App\Models\Advertising\MediaFile;
-use App\Models\Advertising\Payment;
 use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -44,11 +43,6 @@ class Content extends Model
         return $this->hasMany(MediaFile::class, 'content_id');
     }
 
-    public function payments()
-    {
-        return $this->hasMany(Payment::class, 'content_id');
-    }
-
     public function playback_logs()
     {
         return $this->hasMany(PlaybackLog::class, 'content_id');
@@ -62,5 +56,10 @@ class Content extends Model
     public function content_receipts()
     {
         return $this->hasMany(ContentReceipt::class, 'content_id');
+    }
+
+    public function order()
+    {
+        return $this->hasOne(Order::class,'content_id');
     }
 }

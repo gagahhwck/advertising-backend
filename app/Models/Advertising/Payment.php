@@ -2,37 +2,29 @@
 
 namespace App\Models\Advertising;
 
-use App\Models\Advertising\Content;
+use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Payment extends Model
 {
-    use LogsActivity;
+    use SoftDeletes, BaseModel;
+
     protected $connection = 'advertising';
     protected $table = 'payments';
 
     protected $fillable = [
-        'content_id',
-        'amount',
-        'payment_date',
-        'payment_method',
+        'order_id',
+        'gateway',
         'transaction_id',
-        'evidence'
+        'payment_url',
+        'status',
+        'paid_at',
+        'raw_response'
     ];
 
-    public function getActivitylogOptions(): LogOptions
+    public function order()
     {
-        return LogOptions::defaults()
-            ->logAll()
-            ->useLogName('Payment')
-            ->setDescriptionForEvent(fn(string $eventName) => "Payment has been $eventName")
-            ->logOnlyDirty();
-    }
-
-    public function content()
-    {
-        return $this->belongsTo(Content::class, 'content_id');
+        return $this->belongsTo(Order::class,'order_id');
     }
 }
