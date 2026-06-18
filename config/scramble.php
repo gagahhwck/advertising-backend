@@ -43,33 +43,7 @@ $data = [
             <p>The current version of the API is 1.0.0. Please refer to the versioning guidelines for any changes in future releases.</p>
             <h3>Contact Information</h3>
             <p>If you have any questions or need support, please contact the API support team at <a href="mailto:ict@uiii.ac.id">ict@uiii.ac.id</a>.</p>
-            <h3>Development By</h3>
-            <p><a href="https://github.com/gagahhwck" target="_blank">gagahhwck (Nur Alief Gagah Wicaksono)</a></p>
-            <h3>This Project contain Websocket</h3>
-            <table style="border-collapse: collapse; width: 100%;">
-                <tr>
-                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">ID</td>
-                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">KEY</td>
-                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">Secret</td>
-                </tr>
-                <tr>
-                    <td style="border: 1px solid #000; padding: 8px;">advertising-uiii-id</td>
-                    <td style="border: 1px solid #000; padding: 8px;">3c9255027fe9394491b1219831aad636e65769d6</td>
-                    <td style="border: 1px solid #000; padding: 8px;">83f10c128f808261dd577b2966bed732664dad4c</td>
-                </tr>
-            </table>
-            <table style="border-collapse: collapse; width: 100%;">
-                <tr>
-                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">Event</td>
-                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">Channels</td>
-                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">Listen</td>
-                </tr>
-                <tr>
-                    <td style="border: 1px solid #000; padding: 8px;">Content</td>
-                    <td style="border: 1px solid #000; padding: 8px;">contents</td>
-                    <td style="border: 1px solid #000; padding: 8px;">ContentCreated, ContentUpdated</td>
-                </tr>
-            </table>
+            <p>Development By <a href="https://github.com/gagahhwck" target="_blank">gagahhwck (Nur Alief Gagah Wicaksono)</a></p>
             <h3>Role on this Project</h3>
             <table style="border-collapse: collapse; width: 100%;">
                 <tr>
@@ -105,6 +79,36 @@ $data = [
                             <li>CRUD Content</li>
                         </ul>
                     </td>
+                </tr>
+            </table>
+            <h3>This Project contain Websocket</h3>
+            <table style="border-collapse: collapse; width: 100%;">
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">ID</td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">KEY</td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">Secret</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">advertising-uiii-id</td>
+                    <td style="border: 1px solid #000; padding: 8px;">3c9255027fe9394491b1219831aad636e65769d6</td>
+                    <td style="border: 1px solid #000; padding: 8px;">83f10c128f808261dd577b2966bed732664dad4c</td>
+                </tr>
+            </table>
+            <table style="border-collapse: collapse; width: 100%;">
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">Event</td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">Channels</td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align:center;">Listen</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">Content</td>
+                    <td style="border: 1px solid #000; padding: 8px;">contents</td>
+                    <td style="border: 1px solid #000; padding: 8px;">ContentCreated, ContentUpdated</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">RunningText</td>
+                    <td style="border: 1px solid #000; padding: 8px;">running-text</td>
+                    <td style="border: 1px solid #000; padding: 8px;">RunningTextCreated, RunningTextUpdated</td>
                 </tr>
             </table>
             <h3>Next.js / React.Js Integration (Frontend)</h3>

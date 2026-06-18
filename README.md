@@ -1,61 +1,203 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Advertising Backend API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Backend API for the UII Advertising system.
 
-## About Laravel
+This Laravel 12 application provides a secure advertising management API with:
+- Content, event, template, and running text management
+- JWT authentication plus API key validation
+- WebSocket broadcasting for realtime updates
+- WhatsApp connectivity and Expo push notification support
+- S3-compatible media storage
+- Background queue processing and Laravel Octane support
+- API documentation via Dedoc Scramble
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Tech stack
+- PHP 8.2
+- Laravel 12
+- Laravel Octane (frankenphp)
+- Tymon JWT Auth
+- Pusher / Laravel Broadcasting
+- Spatie Activitylog
+- Barryvdh DOMPDF
+- Dedoc Scramble for API docs
+- React / Vite frontend tooling support
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Key features
+- Role-based API access using middleware and permissions
+- Resource endpoints for:
+  - `events`
+  - `templates`
+  - `contents`
+  - `running-texts`
+  - `media_files`
+  - `content_location`
+- Realtime broadcast events:
+  - `ContentCreated`, `ContentUpdated` on channel `contents`
+  - `RunningTextCreated`, `RunningTextUpdated` on channel `running-text`
+- Running text activation endpoint: `GET /api/active-running`
+- WhatsApp connectivity test command: `php artisan whatsapp:test-connection`
+- API docs available under `/docs/api`
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Requirements
+- PHP 8.2+
+- Composer
+- Node.js / npm
+- Database (MySQL, MariaDB, SQLite, etc.)
+- Redis or database queue driver
+- AWS S3-compatible storage for `FILESYSTEM_DISK=s3`
+- Pusher-compatible broadcast configuration for WebSockets
 
-## Learning Laravel
+## Installation
+1. Clone repository
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```bash
+git clone <repository-url> advertising-be
+cd advertising-be
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+2. Install PHP dependencies
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+composer install
+```
 
-## Laravel Sponsors
+3. Install Node dependencies
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+npm install
+```
 
-### Premium Partners
+4. Copy environment file
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+cp .env.example .env
+```
 
-## Contributing
+5. Generate application key and JWT secret
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+php artisan key:generate
+php artisan jwt:secret
+```
 
-## Code of Conduct
+6. Configure `.env`
+- `APP_URL`
+- `DB_CONNECTION`, `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`
+- `FILESYSTEM_DISK=s3` and AWS credentials
+- `PUSHER_APP_ID`, `PUSHER_APP_KEY`, `PUSHER_APP_SECRET`, `PUSHER_APP_CLUSTER`
+- `JWT_SECRET`
+- `API_KEY` and `API_URL` if applicable
+- `WA_SERVER`, `WHATSAPP_KEY`, and notification flags
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+7. Run migrations
 
-## Security Vulnerabilities
+```bash
+php artisan migrate
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Local development
+### Run the API server
+
+```bash
+php artisan serve
+```
+
+### Or run Octane
+
+```bash
+php artisan octane:start --server=frankenphp
+```
+
+### Run Vite frontend tooling
+
+```bash
+npm run dev
+```
+
+### Start queue worker manually
+
+```bash
+php artisan queue:listen --tries=1
+```
+
+## Available scripts
+- `composer test` or `php artisan test` — run PHP tests
+- `npm run dev` — start Vite development server
+- `npm run build` — build frontend assets
+- `php artisan whatsapp:test-connection` — verify WhatsApp server connectivity
+
+## API routes
+The API routes are defined under `routes/api.php` and protected by `api_key` and `auth` middleware.
+
+Example endpoints:
+- `GET /api/event_categories`
+- `GET /api/events`
+- `GET /api/templates`
+- `GET /api/contents`
+- `GET /api/running-texts`
+- `GET /api/active-running`
+
+## WebSocket / Broadcast integration
+This project broadcasts advertisement updates using Laravel broadcasting and Pusher.
+
+Frontend clients should use `laravel-echo` and `pusher-js`:
+
+```js
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+if (typeof window !== 'undefined') window.Pusher = Pusher;
+
+const echo = new Echo({
+  broadcaster: 'pusher',
+  key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY,
+  cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER,
+  wsHost: process.env.NEXT_PUBLIC_PUSHER_HOST || window.location.hostname,
+  wsPort: process.env.NEXT_PUBLIC_PUSHER_PORT || 6001,
+  forceTLS: process.env.NEXT_PUBLIC_PUSHER_SCHEME === 'https',
+  disableStats: true,
+  auth: {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('api_token')}`,
+    },
+  },
+});
+
+echo.channel('contents').listen('ContentCreated', (e) => {
+  // handle new content
+});
+
+echo.channel('running-text').listen('RunningTextUpdated', (e) => {
+  // handle running text changes
+});
+```
+
+## API documentation
+The API documentation is generated by Dedoc Scramble and served at:
+
+```text
+/docs/api
+```
+
+## Environment variables
+Important `.env` values are included in `.env.example`.
+
+Key variables:
+- `APP_URL`
+- `DB_*`
+- `FILESYSTEM_DISK`
+- `AWS_*`
+- `PUSHER_*`
+- `JWT_SECRET`
+- `API_KEY`
+- `WA_SERVER`
+- `WHATSAPP_KEY`
+- `EXPO_NOTIFICATION`
+- `EMAIL_NOTIFICATION`
+
+## Notes
+- `config/setting.php` contains settings for WhatsApp, Expo, email notifications, and API integration.
+- `config/scramble.php` includes API docs customizations, including ERD and integration details.
+- `routes/web.php` serves the docs login functionality for `/docs/api`.
 
 ## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-source and can be released under the terms of the MIT license.
