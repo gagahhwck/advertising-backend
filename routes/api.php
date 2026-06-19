@@ -20,7 +20,7 @@ Route::middleware('api_key')->group(function () {
     // Event (Super Admin, Admin Only)
     Route::get('events', [EventController::class, 'index']);
     Route::post('events', [EventController::class, 'store'])->middleware('permission:ads.create-event');
-    Route::put('events/{event}', [EventController::class, 'update'])->middleware('permission:ads.edit-event');
+    Route::put('events/{event}', [EventController::class, 'update'])->middleware('permission:ads.update-event');
     Route::get('events/{event}', [EventController::class, 'show'])->middleware('permission:ads.view-event');
     Route::delete('events/{event}', [EventController::class, 'destroy'])->middleware('permission:ads.delete-event');
     // Template (Super Admin, Media)
