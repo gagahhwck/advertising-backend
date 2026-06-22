@@ -50,7 +50,6 @@ class TemplateController extends Controller
             'portrait_background'   => ['required','image','mimes:jpg,png,jpeg,webp'],
             'template_json'         => ['nullable','json']
         ],[
-            'name'                  => 'The Required yaa apif',
             'type'                  => 'The Type must be one of the following: flower_board,advertisement'
         ]);
 
@@ -101,14 +100,19 @@ class TemplateController extends Controller
      */
     public function update(Request $request, Template $template)
     {
+        foreach (['landscape_background', 'portrait_background', 'template_json'] as $field) {
+            if ($request->has($field) && $request->input($field) === '') {
+                $request->merge([$field => null]);
+            }
+        }
+
         $data = $request->validate([
-            'name'                  => ['required'],
+            'name'                  => ['required','string'],
             'type'                  => ['required','in:flower_board,advertisement'],
             'landscape_background'  => ['nullable','image','mimes:jpg,png,jpeg,webp'],
             'portrait_background'   => ['nullable','image','mimes:jpg,png,jpeg,webp'],
-            'template_json'         => ['nullable','json']
+            'template_json'         => ['nullable','json'],
         ],[
-            'name'                  => 'The Required yaa apif',
             'type'                  => 'The Type must be one of the following: flower_board,advertisement'
         ]);
 

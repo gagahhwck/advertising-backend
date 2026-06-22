@@ -31,7 +31,7 @@ Route::middleware('api_key')->group(function () {
     Route::get('templates', [TemplateController::class, 'index'])->middleware('permission:ads.view-template');
     Route::get('templates/{template}', [TemplateController::class, 'show'])->middleware('permission:ads.view-template');
     Route::post('templates', [TemplateController::class, 'store'])->middleware('permission:ads.create-template');
-    Route::put('templates/{template}', [TemplateController::class, 'update'])->middleware('permission:ads.update-template');
+    Route::post('templates/{template}', [TemplateController::class, 'update'])->middleware('permission:ads.update-template');
     Route::delete('templates/{template}', [TemplateController::class, 'destroy'])->middleware('permission:ads.delete-template');
     // Content (Super Admin, Admin)
     Route::get('contents', [ContentController::class, 'index']);
