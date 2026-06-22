@@ -11,7 +11,5 @@ deploy-job:
     - docker compose exec app bash -c 'composer update'
     - docker compose exec app bash -c 'php artisan migrate'
     - docker compose restart
-    - docker restart advertising
-    - docker restart api-service-uiii
   tags:
     - runner-api-dev
