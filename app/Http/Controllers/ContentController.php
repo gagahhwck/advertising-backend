@@ -68,8 +68,8 @@ class ContentController extends Controller
             'priority'              => ['nullable', 'integer', 'min:1'],
             'is_active'             => ['required', 'boolean'],
             'status'                => ['required', 'in:draft,pending,approved,rejected,scheduled,active,expired'],
-            'start_date'            => ['nullaable'],
-            'end_date'              => ['nullable']
+            'start_date'            => ['nullaable','date'],
+            'end_date'              => ['nullable','date']
         ]);
 
         // Event title for content title if empty
@@ -126,8 +126,8 @@ class ContentController extends Controller
             'auto_resize'           => ['required', 'boolean'],
             'is_active'             => ['required', 'boolean'],
             'status'                => ['required', 'in:draft,pending,approved,rejected,scheduled,active,expired'],
-            'start_date'            => ['nullaable'],
-            'end_date'              => ['nullable']
+            'start_date'            => ['nullaable','date'],
+            'end_date'              => ['nullable','date']
         ]);
 
         // preserve existing values if not provided
