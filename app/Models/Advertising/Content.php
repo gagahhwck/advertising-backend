@@ -26,6 +26,8 @@ class Content extends Model
         'priority',
         'is_active',
         'status',
+        'start_date',
+        'end_date'
     ];
 
     public function template()

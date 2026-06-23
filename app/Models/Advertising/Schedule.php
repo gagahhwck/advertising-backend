@@ -13,7 +13,7 @@ class Schedule extends Model
     protected $table = 'schedules';
 
     protected $fillable = [
-        'content_id',
+        'event_id',
         'start_at',
         'end_at',
     ];
