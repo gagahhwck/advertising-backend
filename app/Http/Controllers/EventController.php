@@ -44,7 +44,7 @@ class EventController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'title'                 => ['required','min:2','unique:events,title'],
+            'title'                 => ['required','unique:events,title'],
             'description'           => ['nullable','string'],
             'event_category_id'     => ['required', 'exists:event_categories,id'],
             'schedule'              => ['sometimes', 'array'],
