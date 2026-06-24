@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('content_locations', function (Blueprint $table) {
+        Schema::create('event_locations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('content_id')->constrained('contents')->onDelete('cascade');
+            $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
             $table->unsignedBigInteger('location_id')->constrained('location_assets')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('content_locations');
+        Schema::dropIfExists('event_locations');
     }
 };

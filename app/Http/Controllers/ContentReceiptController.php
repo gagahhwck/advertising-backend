@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\ReceiptNotificationJob;
-use App\Models\Advertising\ContentReceipt;
+use App\Jobs\SendContentEmailJob;
+use App\Models\Advertising\Content;
+use App\Models\Advertising\ContentReceipts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 
 class ContentReceiptController extends Controller
 {
@@ -25,40 +25,36 @@ class ContentReceiptController extends Controller
     {
         $data = $request->validate([
             'content_id'    => ['required', 'integer', 'exists:contents,id'],
-            'title'         => ['required', 'array', 'min:1'],
-            'title.*'       => ['required', 'string', 'max:255'],
-            'description'   => ['required', 'array', 'min:1'],
-            'description.*' => ['required', 'string'],
-            'to'            => ['required', 'array', 'min:1'],
-            'to.*'          => ['required', 'string', 'exists:sso.dbo.users,username'],
+            'title'         => ['nullable', 'string'],
+            'description'   => ['nullable', 'string'],
+            'to'            => ['required', 'array'],
+            'from'          => ['nullable','string']
         ]);
 
-        $from = Auth::user()->username;
+        $content = Content::findOrFail($data['content_id']);
 
-        $created = [];
+        $rows = [];
 
-        $count = count($data['title']);
-        if ($count !== count($data['description']) || $count !== count($data['to'])) {
-            Validator::make([], [])->after(function ($validator) {
-                $validator->errors()->add('title', 'The title, description, and to fields must have the same number of items.');
-            })->validate();
-        }
-
-        for ($index = 0; $index < $count; $index++) {
-            $payload = [
+        foreach ($data['to'] as $recipient) {
+            $rows[] = ContentReceipts::create([
                 'content_id'  => $data['content_id'],
-                'title'       => $data['title'][$index],
-                'description' => $data['description'][$index],
-                'to'          => $data['to'][$index],
-                'from'        => $from,
-            ];
-
-            // $contentReceipt = ContentReceipt::create($payload);
-            ReceiptNotificationJob::dispatch($payload);
-            $created[] = $payload;
+                'title'       => $data['title'] ?? $content->title,
+                'description' => $data['description'] ?? $content->description,
+                'to'          => $recipient,
+                'from'        => $data['from'] ?? env('MAIL_USERNAME'),
+                'status'      => 'created',
+                'created_by'  => Auth::user()->username
+            ]);
         }
 
-        return response()->json(['data' => $created], 201);
+        foreach ($rows as $row) {
+            SendContentEmailJob::dispatch($row);
+        }
+
+        return response()->json([
+            'message' => 'Notification queued successfully',
+            'total'   => count($rows),
+        ]); 
     }
 
     /**
@@ -80,10 +76,8 @@ class ContentReceiptController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ContentReceipt $contentReceipt)
+    public function destroy()
     {
-        $contentReceipt->delete();
-
-        return response()->json(['message' => 'Delete Successfully'],200);
+        // 
     }
 }

@@ -55,7 +55,7 @@ class RunningTextController extends Controller
                 }
             }],
             'event_id'      => ['nullable','integer','exists:events,id'],
-            'text'          => ['required', function ($attribute, $value, $fail) {
+            'message'       => ['required', function ($attribute, $value, $fail) {
                 if (str_word_count($value) > 75) {
                     $fail('The '.$attribute.' may not have more than 75 words.');
                 }

@@ -42,7 +42,7 @@ class Content extends Model
     
     public function media_files()
     {
-        return $this->hasMany(MediaFile::class, 'content_id');
+        return $this->hasOne(MediaFile::class, 'content_id');
     }
 
     public function playback_logs()
@@ -53,11 +53,6 @@ class Content extends Model
     public function content_locations()
     {
         return $this->hasMany(ContentLocation::class, 'content_id');
-    }
-
-    public function content_receipts()
-    {
-        return $this->hasMany(ContentReceipt::class, 'content_id');
     }
 
     public function order()

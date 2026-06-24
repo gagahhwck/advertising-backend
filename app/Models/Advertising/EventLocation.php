@@ -2,50 +2,41 @@
 
 namespace App\Models\Advertising;
 
-use App\Models\Advertising\Content;
-use App\Models\SSO\User;
+use App\Models\Assets\LocationAsset;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class ContentReceipt extends Model
+class EventLocation extends Model
 {
     use LogsActivity, SoftDeletes;
 
     protected $connection = 'advertising';
-    protected $table = 'content_receipts';
+    protected $table = 'event_locations';
 
     protected $fillable = [
-        'content_id',
-        'title',
-        'description',
-        'to',
-        'from',
+        'event_id',
+        'location_id',
     ];
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->logAll()
-            ->useLogName('ContentReceipt')
-            ->setDescriptionForEvent(fn(string $eventName) => "ContentReceipt has been $eventName")
+            ->useLogName('Event Location')
+            ->setDescriptionForEvent(fn(string $eventName) => "Event Location has been $eventName")
             ->logOnlyDirty();
     }
 
-    public function content()
+    public function event()
     {
-        return $this->belongsTo(Content::class, 'content_id');
+        return $this->belongsTo(Event::class, 'event');
     }
 
-    public function to_user()
+    public function location()
     {
-        return $this->belongsTo(User::class, 'to', 'username');
-    }
-
-    public function from_user()
-    {
-        return $this->belongsTo(User::class, 'from', 'username');
+        return $this->belongsTo(LocationAsset::class, 'location_id');
     }
 
     public function scopeInclude($query)
@@ -54,6 +45,4 @@ class ContentReceipt extends Model
             return $query->with(explode(',', request('include')));
         }
     }
-
-
 }

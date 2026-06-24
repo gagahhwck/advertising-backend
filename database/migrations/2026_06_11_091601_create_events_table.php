@@ -14,11 +14,13 @@ return new class extends Migration
         Schema::create('events', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->foreignId('event_type')->references('id')->on('event_categories')->onDelete('no action');
+            $table->foreignId('event_category_id')->references('id')->on('event_categories')->onDelete('no action');
             $table->text('description')->nullable();
             $table->string('created_by');
             $table->string('updated_by')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->dateTime('start_date')->nullable();
+            $table->dateTime('end_date')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

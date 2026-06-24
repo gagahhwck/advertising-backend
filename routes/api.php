@@ -43,7 +43,6 @@ Route::middleware('api_key')->group(function () {
     Route::apiResource('content_location',ContentLocationController::class)->except('index','show');
     // Media File (Global)
     Route::apiResource('media_files', MediaFileController::class)->except('index','show');
-    // Route::apiResource('content_receipts', ContentReceiptController::class)->except('index','show','update');
 
     // Running Text (Super Admin, Admin)
     Route::get('active-running',[RunningTextController::class, 'running']);

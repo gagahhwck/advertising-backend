@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Advertising\ContentLocation;
+use App\Models\Advertising\EventLocation;
 use App\Models\Assets\LocationAsset;
 use Illuminate\Http\Request;
 
-class ContentLocationController extends Controller
+class EventLocationController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -22,25 +22,25 @@ class ContentLocationController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'content_id'    => ['required','integer','exists:contents,id'],
-            'content_locations' => ['required', 'array', 'min:1'],
-            'content_locations.*' => ['required', 'integer', function ($attribute, $value, $fail) {
+            'event_id'          => ['required','integer','exists:events,id'],
+            'event_location'    => ['required', 'array', 'min:1'],
+            'event_location.*'  => ['required', 'integer', function ($attribute, $value, $fail) {
                 if (!LocationAsset::where('id', $value)->exists()) {
                     $fail("The selected {$attribute} is invalid.");
                 }
             }],
         ]);
 
-        $contentLocations = collect($data['content_locations'])->map(function ($locationId) use ($data) {
-            return ContentLocation::create([
-                'content_id' => $data['content_id'],
+        $contentLocations = collect($data['event_location'])->map(function ($locationId) use ($data) {
+            return EventLocation::create([
+                'event_id' => $data['event_id'],
                 'location_id' => $locationId,
             ]);
         });
 
         return response()->json([
             'success' => true,
-            'message' => 'Content Locations Successfully Created',
+            'message' => 'Event Location Successfully Created',
             'data'    => $contentLocations
         ]);
     }
@@ -48,7 +48,7 @@ class ContentLocationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ContentLocation $contentLocation)
+    public function show(EventLocation $contentLocation)
     {
         //
     }
@@ -56,20 +56,20 @@ class ContentLocationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ContentLocation $contentLocation)
+    public function update(Request $request, EventLocation $event_location)
     {
         $data = $request->validate([
-            'content_locations' => ['required', 'array', 'min:1'],
-            'content_locations.*' => ['required', 'integer', function ($attribute, $value, $fail) {
+            'event_location' => ['required', 'array', 'min:1'],
+            'event_location.*' => ['required', 'integer', function ($attribute, $value, $fail) {
                 if (!LocationAsset::where('id', $value)->exists()) {
                     $fail("The selected {$attribute} is invalid.");
                 }
             }],
         ]);
 
-        $locationIds = array_unique($data['content_locations']);
+        $locationIds = array_unique($data['event_location']);
 
-        $existingLocationIds = ContentLocation::where('content_id', $contentLocation->content_id)
+        $existingLocationIds = EventLocation::where('event_id', $event_location->event_id)
             ->whereIn('location_id', $locationIds)
             ->pluck('location_id')
             ->all();
@@ -78,8 +78,8 @@ class ContentLocationController extends Controller
 
         foreach ($locationIds as $locationId) {
             if (!in_array($locationId, $existingLocationIds, true)) {
-                $created[] = ContentLocation::create([
-                    'content_id' => $contentLocation->content_id,
+                $created[] = EventLocation::create([
+                    'event_id' => $event_location->event_id,
                     'location_id' => $locationId,
                 ]);
             }
@@ -87,7 +87,7 @@ class ContentLocationController extends Controller
 
         return response()->json([
             'success'   => true,
-            'message'   => 'Content Locations Successfully Updated',
+            'message'   => 'Event Location Successfully Updated',
             'data'      => $created,
             'skipped'   => $existingLocationIds,
         ]);
@@ -96,13 +96,13 @@ class ContentLocationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ContentLocation $contentLocation)
+    public function destroy(EventLocation $event_location)
     {
-        $contentLocation->delete();
+        $event_location->delete();
 
         return response()->json([
             'success'   => true,
-            'message'   => 'Content Location Successfully Updated',
+            'message'   => 'Event Location Successfully Updated',
         ]);
     }
 }

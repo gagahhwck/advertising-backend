@@ -17,14 +17,14 @@ class Event extends Model
     protected $fillable = [
         'title',
         'description',
-        'event_type',
+        'event_category_id',
         'created_by',
         'updated_by'
     ];
 
-    public function type()
+    public function category()
     {
-        return $this->belongsTo(EventCategory::class,'event_type');
+        return $this->belongsTo(EventCategory::class,'event_category_id');
     }
 
     public function contents()
@@ -35,6 +35,11 @@ class Event extends Model
     public function schedules()
     {
         return $this->hasMany(Schedule::class, 'event_id');
+    }
+
+    public function locations()
+    {
+        return $this->belongsTo(EventLocation::class, 'event_id');
     }
 
 

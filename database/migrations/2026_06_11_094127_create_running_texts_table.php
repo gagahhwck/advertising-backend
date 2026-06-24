@@ -13,11 +13,14 @@ return new class extends Migration
     {
         Schema::create('running_texts', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('event_id')->nullable()->references('id')->on('events')->onDelete('set null');
             $table->text('message');
             $table->integer('priority')->default(1);
             $table->datetime('start_at');
             $table->datetime('end_at');
             $table->boolean('is_active')->default(true);
+            $table->string('created_by');
+            $table->string('updated_by')->nullable();
             $table->timestamps();
         });
     }

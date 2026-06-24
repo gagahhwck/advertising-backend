@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('content_receipts', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('content_id')->constrained('contents')->onDelete('cascade');
+            $table->foreignId('content_id')->constrained('contents')->onDelete('cascade');
             $table->string('title')->nullable();
             $table->string('description')->nullable();
             $table->string('to')->nullable();
             $table->string('from')->nullable();
+            $table->enum('status',['created','sent','failed','received','read'])->default('created');
+            $table->string('created_by');
             $table->softDeletes();
             $table->timestamps();
         });

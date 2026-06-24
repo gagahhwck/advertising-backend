@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('templates', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->enum('type', ['flower_board', 'advertisement']);
+            $table->string('type');
             $table->string('landscape_background')->nullable();
             $table->string('portrait_background')->nullable();
             $table->json('template_json')->nullable();

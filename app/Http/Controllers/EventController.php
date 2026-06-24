@@ -46,10 +46,12 @@ class EventController extends Controller
         $data = $request->validate([
             'title'                 => ['required','min:2','unique:events,title'],
             'description'           => ['nullable','string'],
-            'event_type'            => ['required', 'exists:event_categories,id'],
+            'event_category'        => ['required', 'exists:event_categories,id'],
             'schedule'              => ['required', 'array'],
             'schedule.*.start_time' => ['required_with:schedule', 'date_format:Y-m-d H:i:s'],
             'schedule.*.end_time'   => ['required_with:schedule', 'date_format:Y-m-d H:i:s'],
+            'start_date'            => ['nullable','date_format:Y-m-d H:i:s'],
+            'end_date'              => ['nullable','date_format:Y-m-d H:i:s'],
         ],[
             'title' => 'The Title is required minimum 2 Character',
             'schedule.array' => 'The schedule field must be an array.',
