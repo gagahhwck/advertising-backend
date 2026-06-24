@@ -46,12 +46,12 @@ class EventController extends Controller
         $data = $request->validate([
             'title'                 => ['required','min:2','unique:events,title'],
             'description'           => ['nullable','string'],
-            'event_category'        => ['required', 'exists:event_categories,id'],
-            'schedule'              => ['required', 'array'],
+            'event_category_id'     => ['required', 'exists:event_categories,id'],
+            'schedule'              => ['sometimes', 'array'],
             'schedule.*.start_time' => ['required_with:schedule', 'date_format:Y-m-d H:i:s'],
             'schedule.*.end_time'   => ['required_with:schedule', 'date_format:Y-m-d H:i:s'],
-            'start_date'            => ['nullable','date_format:Y-m-d H:i:s'],
-            'end_date'              => ['nullable','date_format:Y-m-d H:i:s'],
+            'start_date'            => ['required_without:schedule','date_format:Y-m-d H:i:s'],
+            'end_date'              => ['required_without:schedule','date_format:Y-m-d H:i:s'],
         ],[
             'title' => 'The Title is required minimum 2 Character',
             'schedule.array' => 'The schedule field must be an array.',
@@ -59,9 +59,21 @@ class EventController extends Controller
             'schedule.*.start_time.date_format' => 'The schedule.*.start_time does not match the format Y-m-d H:i:s.',
             'schedule.*.end_time.required_with' => 'The schedule.*.end_time field is required when schedule is present.',
             'schedule.*.end_time.date_format' => 'The schedule.*.end_time does not match the format Y-m-d H:i:s.',
+            'start_date.required_without' => 'Provide start_date and end_date when schedule is not provided.',
+            'end_date.required_without' => 'Provide start_date and end_date when schedule is not provided.',
         ]);
 
-        if ($conflict = $this->validateScheduleConflicts($data['schedule'] ?? [], null)) {
+        $schedulesToCheck = [];
+        if (!empty($data['schedule']) && is_array($data['schedule'])) {
+            $schedulesToCheck = $data['schedule'];
+        } else {
+            $schedulesToCheck = [[
+                'start_time' => $data['start_date'] ?? null,
+                'end_time' => $data['end_date'] ?? null,
+            ]];
+        }
+
+        if ($conflict = $this->validateScheduleConflicts($schedulesToCheck, null)) {
             return response()->json([
                 'success' => false,
                 'message' => $conflict,
@@ -72,7 +84,8 @@ class EventController extends Controller
 
         $event = Event::create($data);
 
-        if (isset($data['schedule'])) {
+        // Persist schedules: use provided schedule array or single start_date/end_date
+        if (!empty($data['schedule']) && is_array($data['schedule'])) {
             foreach ($data['schedule'] as $schedule) {
                 $event->schedules()->create([
                     'event_id' => $event->id,
@@ -80,6 +93,12 @@ class EventController extends Controller
                     'end_at'   => $schedule['end_time'],
                 ]);
             }
+        } else {
+            $event->schedules()->create([
+                'event_id' => $event->id,
+                'start_at' => $data['start_date'] ?? null,
+                'end_at'   => $data['end_date'] ?? null,
+            ]);
         }
 
         return response()->json([
