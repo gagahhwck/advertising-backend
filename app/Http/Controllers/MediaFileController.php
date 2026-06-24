@@ -24,7 +24,7 @@ class MediaFileController extends Controller
     {
         $data = $request->validate([
             'content_id'    => ['required','exists:contents,id'],
-            'orientation'   => ['required','in:potrait,landscape,both'],
+            'orientation'   => ['required','in:portrait,landscape,both'],
             'file_path'     => ['required','file'],
             'thumbnail'     => ['nullable','file']
         ]);
@@ -95,7 +95,7 @@ class MediaFileController extends Controller
 
         $data = $request->validate([
             'content_id'    => ['sometimes','exists:contents,id'],
-            'orientation'   => ['sometimes','in:potrait,landscape,both'],
+            'orientation'   => ['sometimes','in:portrait,landscape,both'],
             'file_path'     => ['nullable','file'],
             'thumbnail'     => ['nullable','file']
         ]);
