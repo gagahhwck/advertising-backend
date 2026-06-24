@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\SendContentEmailJob;
 use App\Models\Advertising\Content;
 use App\Models\Advertising\ContentReceipts;
 use Illuminate\Http\Request;
@@ -47,9 +46,9 @@ class ContentReceiptController extends Controller
             ]);
         }
 
-        foreach ($rows as $row) {
-            SendContentEmailJob::dispatch($row);
-        }
+        // foreach ($rows as $row) {
+            
+        // }
 
         return response()->json([
             'message' => 'Notification queued successfully',

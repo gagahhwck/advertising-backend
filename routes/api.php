@@ -1,9 +1,9 @@
 <?php
 
 use App\Http\Controllers\ContentController;
-use App\Http\Controllers\ContentLocationController;
 use App\Http\Controllers\EventCategoryController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventLocationController;
 use App\Http\Controllers\MediaFileController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
@@ -40,7 +40,7 @@ Route::middleware('api_key')->group(function () {
     Route::put('contents/{content}', [ContentController::class, 'update'])->middleware('permission:ads.update-content');
     Route::delete('contents/{content}', [ContentController::class, 'destroy'])->middleware('permission:ads.delete-content');
     // Content Media (Global)
-    Route::apiResource('content_location',ContentLocationController::class)->except('index','show');
+    Route::apiResource('event_location',EventLocationController::class)->except('index','show');
     // Media File (Global)
     Route::apiResource('media_files', MediaFileController::class)->except('index','show');
 

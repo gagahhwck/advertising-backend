@@ -2,7 +2,6 @@
 
 namespace App\Models\Advertising;
 
-use App\Models\Advertising\ContentLocation;
 use App\Models\Advertising\MediaFile;
 use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Model;
@@ -48,11 +47,6 @@ class Content extends Model
     public function playback_logs()
     {
         return $this->hasMany(PlaybackLog::class, 'content_id');
-    }
-
-    public function content_locations()
-    {
-        return $this->hasMany(ContentLocation::class, 'content_id');
     }
 
     public function order()
